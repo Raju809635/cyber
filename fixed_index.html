@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberForensics Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); color: #e2e8f0; min-height: 100vh; }
+        .header { background: rgba(15, 23, 42, 0.95); padding: 1rem 2rem; border-bottom: 1px solid #334155; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #00d4ff; }
+        .nav-tabs { display: flex; gap: 1rem; }
+        .nav-tab { padding: 0.75rem 1.5rem; background: transparent; border: 1px solid #475569; border-radius: 8px; color: #cbd5e1; cursor: pointer; }
+        .nav-tab.active { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .status-card { background: linear-gradient(135deg, #1e293b, #334155); padding: 1.5rem; border-radius: 12px; text-align: center; position: relative; }
+        .status-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #00d4ff, #0ea5e9); }
+        .status-number { font-size: 2rem; font-weight: bold; color: #00d4ff; margin-bottom: 0.5rem; }
+        .card { background: rgba(30, 41, 59, 0.7); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #475569; }
+        .card-title { font-size: 1.25rem; color: #00d4ff; margin-bottom: 1rem; }
+        .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid; }
+        .alert-danger { background: rgba(239, 68, 68, 0.1); border-left-color: #ef4444; color: #fca5a5; }
+        .alert-warning { background: rgba(245, 158, 11, 0.1); border-left-color: #f59e0b; color: #fcd34d; }
+        .alert-success { background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; color: #86efac; }
+        input, textarea, button { padding: 0.75rem; margin-bottom: 10px; border-radius: 8px; border: 1px solid #475569; background: rgba(30, 41, 59, 0.8); color: #e2e8f0; }
+        button { background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🔒 CyberForensics Pro</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+                <button class="nav-tab" onclick="showTab('investigation')">Investigation</button>
+                <button class="nav-tab" onclick="showTab('evidence')">Evidence</button>
+                <button class="nav-tab" onclick="showTab('reports')">Reports</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="dashboard" class="tab-content active">
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-number" id="activeInvestigations">5</div>
+                    <div>Active Investigations</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number" id="evidenceItems">127</div>
+                    <div>Evidence Items</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number" id="threatsDetected">23</div>
+                    <div>Threats Detected</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number" id="casesResolved">89</div>
+                    <div>Cases Resolved</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">🚨 Recent Alerts</div>
+                <div class="alert alert-danger">
+                    <strong>High Priority:</strong> Suspicious wire transfer detected from CEO account
+                </div>
+                <div class="alert alert-warning">
+                    <strong>Medium Priority:</strong> Unusual login pattern detected
+                </div>
+                <div class="alert alert-success">
+                    <strong>Resolved:</strong> Phishing attempt blocked
+                </div>
+            </div>
+        </div>
+
+        <div id="investigation" class="tab-content">
+            <div class="card">
+                <div class="card-title">📧 Email Analysis</div>
+                <textarea id="emailHeaders" placeholder="Paste email headers here..." style="width:100%;height:100px;"></textarea>
+                <input type="text" id="senderIP" placeholder="Sender IP" style="width:100%;">
+                <button onclick="analyzeEmail()">Analyze Email</button>
+                <div id="analysisResults"></div>
+            </div>
+        </div>
+
+        <div id="evidence" class="tab-content">
+            <div class="card">
+                <div class="card-title">🗂 Evidence Management</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <input type="text" id="evidenceType" placeholder="Evidence Type" style="width:100%;">
+                    <input type="text" id="evidenceDescription" placeholder="Description" style="width:100%;">
+                </div>
+                <textarea id="evidenceContent" placeholder="Evidence Content" style="width:100%;height:80px;margin-bottom:1rem;"></textarea>
+                <button onclick="addEvidence()">Add Evidence</button>
+                <table style="width:100%;margin-top:1rem;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:rgba(15,23,42,0.8);">
+                            <th style="padding:0.75rem;border-bottom:1px solid #475569;color:#00d4ff;">ID</th>
+                            <th style="padding:0.75rem;border-bottom:1px solid #475569;color:#00d4ff;">Type</th>
+                            <th style="padding:0.75rem;border-bottom:1px solid #475569;color:#00d4ff;">Description</th>
+                            <th style="padding:0.75rem;border-bottom:1px solid #475569;color:#00d4ff;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evidenceTable">
+                        <tr>
+                            <td style="padding:0.75rem;border-bottom:1px solid #475569;">EV-001</td>
+                            <td style="padding:0.75rem;border-bottom:1px solid #475569;">Email Headers</td>
+                            <td style="padding:0.75rem;border-bottom:1px solid #475569;">Suspicious email analysis</td>
+                            <td style="padding:0.75rem;border-bottom:1px solid #475569;">Verified</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <div class="card-title">📊 Reports</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <input type="text" id="reportTitle" placeholder="Report Title" style="width:100%;">
+                    <input type="text" id="investigator" placeholder="Investigator Name" style="width:100%;">
+                </div>
+                <textarea id="reportSummary" placeholder="Investigation Summary" style="width:100%;height:80px;margin-bottom:1rem;"></textarea>
+                <button onclick="generateReport()">Generate Report</button>
+                <div id="reportsList" style="margin-top:1rem;">
+                    <h3>Generated Reports</h3>
+                    <div id="reportsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000';
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard`);
+                const data = await response.json();
+                
+                document.getElementById('activeInvestigations').textContent = data.activeInvestigations;
+                document.getElementById('evidenceItems').textContent = data.evidenceItems;
+                document.getElementById('threatsDetected').textContent = data.threatsDetected;
+                document.getElementById('casesResolved').textContent = data.casesResolved;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function analyzeEmail() {
+            const headers = document.getElementById('emailHeaders').value;
+            const ip = document.getElementById('senderIP').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/analyze-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ headers, senderIP: ip })
+                });
+                const result = await response.json();
+                
+                document.getElementById('analysisResults').innerHTML = `
+                    <div class="alert alert-${result.threat_level === 'high' ? 'danger' : 'success'}">
+                        <strong>Threat Level:</strong> ${result.threat_level}<br>
+                        <strong>Reputation Score:</strong> ${result.reputation_score}<br>
+                        <strong>Recommendations:</strong> ${result.recommendations.join(', ')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error analyzing email:', error);
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function addEvidence() {
+            const type = document.getElementById('evidenceType').value;
+            const description = document.getElementById('evidenceDescription').value;
+            const content = document.getElementById('evidenceContent').value;
+            
+            if (!type || !description || !content) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/evidence`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, content, description })
+                });
+                const result = await response.json();
+                
+                const table = document.getElementById('evidenceTable');
+                table.innerHTML += `
+                    <tr>
+                        <td style="padding:0.75rem;border-bottom:1px solid #475569;">${result.id}</td>
+                        <td style="padding:0.75rem;border-bottom:1px solid #475569;">${type}</td>
+                        <td style="padding:0.75rem;border-bottom:1px solid #475569;">${description}</td>
+                        <td style="padding:0.75rem;border-bottom:1px solid #475569;">${result.status}</td>
+                    </tr>
+                `;
+                
+                // Clear form
+                document.getElementById('evidenceType').value = '';
+                document.getElementById('evidenceDescription').value = '';
+                document.getElementById('evidenceContent').value = '';
+            } catch (error) {
+                console.error('Error adding evidence:', error);
+            }
+        }
+
+        function generateReport() {
+            const title = document.getElementById('reportTitle').value;
+            const investigator = document.getElementById('investigator').value;
+            const summary = document.getElementById('reportSummary').value;
+            
+            if (!title || !investigator || !summary) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            const reportData = {
+                title,
+                investigator,
+                summary,
+                date: new Date().toLocaleDateString(),
+                cases: document.getElementById('activeInvestigations').textContent,
+                evidence: document.getElementById('evidenceItems').textContent
+            };
+            
+            const container = document.getElementById('reportsContainer');
+            container.innerHTML += `
+                <div class="card" style="margin-bottom:1rem;background:rgba(15,23,42,0.5);">
+                    <h4>${reportData.title}</h4>
+                    <p><strong>Investigator:</strong> ${reportData.investigator}</p>
+                    <p><strong>Date:</strong> ${reportData.date}</p>
+                    <p><strong>Summary:</strong> ${reportData.summary}</p>
+                    <p><strong>Active Cases:</strong> ${reportData.cases} | <strong>Evidence Items:</strong> ${reportData.evidence}</p>
+                </div>
+            `;
+            
+            // Clear form
+            document.getElementById('reportTitle').value = '';
+            document.getElementById('investigator').value = '';
+            document.getElementById('reportSummary').value = '';
+        }
+
+        // Store data locally
+        let evidenceData = [];
+        let reportsData = [];
+        
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>

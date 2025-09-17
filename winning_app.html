@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberForensics Pro - AI-Powered Email Fraud Detection</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f, #1a0f2e); 
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #e2e8f0; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .header { 
+            background: rgba(15, 23, 42, 0.95); 
+            padding: 1rem 2rem; 
+            border-bottom: 1px solid rgba(52, 211, 153, 0.3); 
+            backdrop-filter: blur(20px); 
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+        }
+        
+        .user-account {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(30, 15, 25, 0.6);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff453a, #ff9f0a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 69, 58, 0.2);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            color: #ff6b6b;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 69, 58, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            background: linear-gradient(45deg, #ff453a, #ff9f0a, #bf5af2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 69, 58, 0.5);
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            from { filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(52, 211, 153, 0.6)); }
+        }
+        
+        .nav-tabs { 
+            display: flex; 
+            gap: 0.5rem; 
+        }
+        
+        .nav-tab { 
+            padding: 0.75rem 1.5rem; 
+            background: rgba(30, 41, 59, 0.6); 
+            border: 1px solid rgba(52, 211, 153, 0.2); 
+            border-radius: 12px; 
+            color: #cbd5e1; 
+            cursor: pointer; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+        
+        .nav-tab.active, .nav-tab:hover { 
+            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2); 
+            transform: translateY(-3px) scale(1.05); 
+            box-shadow: 0 10px 30px rgba(255, 69, 58, 0.4);
+            border-color: rgba(255, 159, 10, 0.6);
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+        }
+        
+        .tab-content { 
+            display: none; 
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+            margin-bottom: 2rem; 
+        }
+        
+        .status-card { 
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6)); 
+            padding: 2rem; 
+            border-radius: 20px; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            backdrop-filter: blur(20px);
+        }
+        
+        .status-card:hover { 
+            transform: translateY(-10px) rotateX(5deg); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            height: 4px; 
+            background: linear-gradient(90deg, #00d4ff, #34d399, #a78bfa); 
+            background-size: 200% 100%;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .status-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+        }
+        
+        .status-card:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .status-number { 
+            font-size: 2.5rem; 
+            font-weight: 700; 
+            background: linear-gradient(45deg, #ff453a, #30d158);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem; 
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card { 
+            background: rgba(30, 41, 59, 0.8); 
+            border-radius: 20px; 
+            padding: 2rem; 
+            margin-bottom: 1.5rem; 
+            border: 1px solid rgba(52, 211, 153, 0.2); 
+            backdrop-filter: blur(20px); 
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: rgba(52, 211, 153, 0.4);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(52, 211, 153, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card-title { 
+            font-size: 1.4rem; 
+            background: linear-gradient(45deg, #ff453a, #ff9f0a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            font-weight: 600;
+        }
+        
+        .alert { 
+            padding: 1.5rem; 
+            margin-bottom: 1rem; 
+            border-radius: 15px; 
+            border-left: 4px solid; 
+            position: relative;
+            overflow: hidden;
+            animation: slideInLeft 0.5s ease-out;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .alert-danger { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1)); 
+            border-left-color: #ef4444; 
+            color: #fca5a5; 
+        }
+        
+        .alert-warning { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1)); 
+            border-left-color: #f59e0b; 
+            color: #fcd34d; 
+        }
+        
+        .alert-success { 
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1)); 
+            border-left-color: #22c55e; 
+            color: #86efac; 
+        }
+        
+        input, textarea, select, button { 
+            padding: 1rem; 
+            margin-bottom: 15px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(52, 211, 153, 0.2); 
+            background: rgba(30, 41, 59, 0.8); 
+            color: #e2e8f0; 
+            font-size: 0.95rem; 
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #34d399;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        button { 
+            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2); 
+            color: white; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.4); 
+        }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem; 
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td { 
+            padding: 1rem; 
+            border-bottom: 1px solid rgba(52, 211, 153, 0.1); 
+            text-align: left; 
+            transition: all 0.3s ease;
+        }
+        
+        th { 
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)); 
+            color: #34d399; 
+            font-weight: 600; 
+        }
+        
+        tr:hover { 
+            background: rgba(52, 211, 153, 0.1); 
+            transform: scale(1.01);
+        }
+        
+        .threat-high { color: #ff6b6b; font-weight: bold; text-shadow: 0 0 10px rgba(255, 107, 107, 0.3); }
+        .threat-medium { color: #ffd93d; font-weight: bold; text-shadow: 0 0 10px rgba(255, 217, 61, 0.3); }
+        .threat-low { color: #6bcf7f; font-weight: bold; text-shadow: 0 0 10px rgba(107, 207, 127, 0.3); }
+        .threat-critical { color: #ff4757; font-weight: bold; text-shadow: 0 0 15px rgba(255, 71, 87, 0.5); animation: criticalPulse 1.5s infinite; }
+        
+        @keyframes criticalPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .progress-bar { 
+            width: 100%; 
+            height: 12px; 
+            background: rgba(30, 41, 59, 0.8); 
+            border-radius: 10px; 
+            overflow: hidden; 
+            margin: 0.75rem 0; 
+            position: relative;
+        }
+        
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #00d4ff, #34d399, #a78bfa); 
+            border-radius: 10px; 
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .ai-analysis { 
+            background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc); 
+            padding: 1.5rem; 
+            border-radius: 15px; 
+            margin: 1rem 0; 
+            position: relative;
+            overflow: hidden;
+            animation: aiGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes aiGlow {
+            from { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
+            to { box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); }
+        }
+        
+        .real-time { 
+            animation: pulse 2s infinite, numberCount 0.5s ease-out; 
+        }
+        
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.8; transform: scale(1.05); } 
+        }
+        
+        @keyframes numberCount {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .chart-container { 
+            height: 250px; 
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4)); 
+            border-radius: 15px; 
+            padding: 1.5rem; 
+            margin: 1rem 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.1) 0%, transparent 50%);
+            animation: radarSweep 4s linear infinite;
+        }
+        
+        @keyframes radarSweep {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ff453a;
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+        
+        /* Startup Animation Styles */
+        .startup-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: startupFadeOut 1s ease-in-out 3s forwards;
+        }
+        
+        .startup-content {
+            text-align: center;
+            animation: startupSlideUp 1.5s ease-out;
+        }
+        
+        .startup-logo {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            animation: logoSpin 2s ease-in-out;
+        }
+        
+        .startup-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff453a, #ff9f0a, #bf5af2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+        
+        .startup-subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            animation: subtitleFade 1s ease-in 0.5s both;
+        }
+        
+        .startup-loading {
+            animation: loadingFade 1s ease-in 1s both;
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 69, 58, 0.2);
+            border-radius: 2px;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff453a, #ff9f0a, #bf5af2);
+            animation: loadingProgress 2s ease-in-out 1.5s forwards;
+        }
+        
+        .loading-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        @keyframes startupSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes logoSpin {
+            0% { transform: rotateY(0deg) scale(0.5); opacity: 0; }
+            50% { transform: rotateY(180deg) scale(1.1); opacity: 1; }
+            100% { transform: rotateY(360deg) scale(1); opacity: 1; }
+        }
+        
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(191, 90, 242, 0.6)); }
+        }
+        
+        @keyframes subtitleFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes loadingFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes loadingProgress {
+            from { left: -100%; }
+            to { left: 100%; }
+        }
+        
+        @keyframes startupFadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        /* Auth Screen Styles */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .auth-container {
+            background: rgba(30, 15, 25, 0.9);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-header h2 {
+            background: linear-gradient(45deg, #ff453a, #ff9f0a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: rgba(15, 15, 15, 0.5);
+            border-radius: 12px;
+            padding: 0.25rem;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .auth-tab.active {
+            background: linear-gradient(135deg, #ff453a, #ff9f0a);
+            color: white;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        .auth-demo {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 159, 10, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 159, 10, 0.2);
+        }
+        
+        .auth-demo small {
+            color: #fcd34d;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 69, 58, 0.2);
+        }
+        
+        .auth-footer p {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            border-radius: 50%;
+            border-top-color: #34d399;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+            
+            .nav-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Startup Animation -->
+    <div id="startup-screen" class="startup-screen">
+        <div class="startup-content">
+            <div class="startup-logo">🛡️</div>
+            <div class="startup-title">CyberForensics Pro</div>
+            <div class="startup-subtitle">AI-Powered Security Platform</div>
+            <div class="startup-loading">
+                <div class="loading-bar"></div>
+                <div class="loading-text">Initializing Security Systems...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login/Signup Screen -->
+    <div id="auth-screen" class="auth-screen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">🛡️</div>
+                <h2>CyberForensics Pro</h2>
+                <p>Secure Access Portal</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <input type="email" id="loginEmail" placeholder="Email Address" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button onclick="handleLogin()" class="auth-button">🔐 Secure Login</button>
+                <div class="auth-demo">
+                    <small>Demo: admin@cyber.com / admin123</small>
+                </div>
+            </div>
+            
+            <!-- Signup Form -->
+            <div id="signup-form" class="auth-form">
+                <input type="text" id="signupName" placeholder="Full Name" required>
+                <input type="email" id="signupEmail" placeholder="Email Address" required>
+                <input type="password" id="signupPassword" placeholder="Password" required>
+                <input type="text" id="signupOrg" placeholder="Organization" required>
+                <button onclick="handleSignup()" class="auth-button">🚀 Create Account</button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>🔒 Enterprise-grade security • 256-bit encryption</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-particles"></div>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🛡️ CyberForensics Pro - AI Edition</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('dashboard')">🏠 Dashboard</button>
+                <button class="nav-tab" onclick="showTab('ai-analysis')">🤖 AI Analysis</button>
+                <button class="nav-tab" onclick="showTab('investigation')">🔍 Investigation</button>
+                <button class="nav-tab" onclick="showTab('evidence')">📁 Evidence</button>
+                <button class="nav-tab" onclick="showTab('reports')">📊 Reports</button>
+                <button class="nav-tab" onclick="showTab('ml-insights')">🧠 ML Insights</button>
+            </div>
+            
+            <div class="user-account" id="userAccount" style="display: none;">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role">Security Analyst</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-number real-time" id="activeInvestigations">12</div>
+                    <div>Active Investigations</div>
+                    <div style="font-size:0.8rem;color:#94a3b8;">↑ 15% from last week</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number real-time" id="evidenceItems">347</div>
+                    <div>Evidence Items</div>
+                    <div style="font-size:0.8rem;color:#94a3b8;">AI Processed: 98%</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number real-time" id="threatsDetected">89</div>
+                    <div>Threats Detected</div>
+                    <div style="font-size:0.8rem;color:#ef4444;">🔥 23 Critical</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-number real-time" id="casesResolved">156</div>
+                    <div>Cases Resolved</div>
+                    <div style="font-size:0.8rem;color:#22c55e;">✅ 94% Success Rate</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">🚨 Real-Time Threat Feed</div>
+                    <div class="alert alert-danger">
+                        <strong>CRITICAL:</strong> Advanced Persistent Threat detected - CEO impersonation attack
+                        <div style="font-size:0.8rem;margin-top:0.5rem;">Confidence: 97% | Source: AI Engine</div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <strong>HIGH:</strong> Suspicious wire transfer request from compromised account
+                        <div style="font-size:0.8rem;margin-top:0.5rem;">Confidence: 89% | ML Score: 8.7/10</div>
+                    </div>
+                    <div class="alert alert-success">
+                        <strong>RESOLVED:</strong> Phishing campaign blocked - 1,247 emails quarantined
+                        <div style="font-size:0.8rem;margin-top:0.5rem;">AI Response Time: 0.3s</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📈 AI Performance Metrics</div>
+                    <div>Threat Detection Accuracy</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 96%"></div></div>
+                    <small>96% (Industry Leading)</small>
+                    
+                    <div style="margin-top:1rem;">False Positive Rate</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 4%"></div></div>
+                    <small>0.4% (Best in Class)</small>
+                    
+                    <div style="margin-top:1rem;">Response Time</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: 98%"></div></div>
+                    <small>< 1 second average</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🌍 Global Threat Map</div>
+                <div class="chart-container">
+                    <div style="text-align:center;">
+                        <h3>Live Threat Intelligence</h3>
+                        <p>🔴 High Risk: Russia, China, North Korea</p>
+                        <p>🟡 Medium Risk: Iran, Brazil, India</p>
+                        <p>🟢 Low Risk: EU, Canada, Australia</p>
+                        <div style="margin-top:1rem;font-size:0.9rem;color:#94a3b8;">
+                            Last Updated: <span id="lastUpdate"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Analysis Tab -->
+        <div id="ai-analysis" class="tab-content">
+            <div class="card">
+                <div class="card-title">🤖 Advanced AI Email Analysis</div>
+                <div class="grid-2">
+                    <div>
+                        <textarea id="aiEmailContent" placeholder="Paste suspicious email content here..." style="width:100%;height:150px;"></textarea>
+                        <input type="file" id="emailFile" accept=".eml,.msg" style="width:100%;">
+                    </div>
+                    <div>
+                        <select id="analysisType" style="width:100%;">
+                            <option value="full">Full AI Analysis</option>
+                            <option value="sentiment">Sentiment Analysis</option>
+                            <option value="linguistic">Linguistic Patterns</option>
+                            <option value="metadata">Metadata Extraction</option>
+                        </select>
+                        <button onclick="runAIAnalysis()" style="width:100%;">🚀 Run AI Analysis</button>
+                    </div>
+                </div>
+                <div id="aiResults"></div>
+            </div>
+        </div>
+
+        <!-- Investigation Tab -->
+        <div id="investigation" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">🔍 New Investigation</div>
+                    <div class="grid-2">
+                        <input type="text" id="caseId" placeholder="Case ID (auto-generated)" readonly>
+                        <select id="priority">
+                            <option value="critical">🔴 Critical</option>
+                            <option value="high">🟠 High</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="low">🟢 Low</option>
+                        </select>
+                    </div>
+                    <div class="grid-2">
+                        <select id="investigationType">
+                            <option value="email-fraud">📧 Email Fraud</option>
+                            <option value="account-compromise">🔐 Account Compromise</option>
+                            <option value="insider-threat">👤 Insider Threat</option>
+                            <option value="data-breach">💾 Data Breach</option>
+                            <option value="ransomware">🦠 Ransomware</option>
+                        </select>
+                        <input type="text" id="investigatorName" placeholder="Lead Investigator">
+                    </div>
+                    <textarea id="caseDescription" placeholder="Detailed case description..." style="width:100%;height:100px;"></textarea>
+                    <button onclick="createInvestigation()" style="width:100%;">📝 Create Investigation</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📧 Smart Email Analysis</div>
+                    <textarea id="emailHeaders" placeholder="Email headers..." style="width:100%;height:80px;"></textarea>
+                    <div class="grid-2">
+                        <input type="text" id="senderIP" placeholder="Sender IP Address">
+                        <input type="text" id="senderDomain" placeholder="Sender Domain">
+                    </div>
+                    <button onclick="analyzeEmail()" style="width:100%;">🔬 Analyze Email</button>
+                    <div id="analysisResults"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence Tab -->
+        <div id="evidence" class="tab-content">
+            <div class="card">
+                <div class="card-title">📁 Digital Evidence Management</div>
+                <div class="grid-3">
+                    <input type="text" id="evidenceType" placeholder="Evidence Type">
+                    <input type="text" id="evidenceSource" placeholder="Source">
+                    <select id="evidencePriority">
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <textarea id="evidenceDescription" placeholder="Evidence description..." style="width:100%;height:80px;"></textarea>
+                <input type="file" id="evidenceFile" multiple style="width:100%;">
+                <button onclick="addEvidence()" style="width:100%;margin-bottom:1rem;">📎 Add Evidence</button>
+                <button onclick="exportAllEvidence()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);">📥 Export All Evidence</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Source</th>
+                            <th>Priority</th>
+                            <th>Hash</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evidenceTable">
+                        <tr>
+                            <td>EV-001</td>
+                            <td>Email Headers</td>
+                            <td>Exchange Server</td>
+                            <td><span class="threat-high">Critical</span></td>
+                            <td>SHA256:a1b2c3...</td>
+                            <td>✅ Verified</td>
+                            <td>
+                                <button onclick="viewEvidence('EV-001')" style="padding:0.25rem 0.5rem;margin-right:0.25rem;">View</button>
+                                <button onclick="downloadEvidence('EV-001')" style="padding:0.25rem 0.5rem;">⬇️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <div class="card-title">📊 Advanced Reporting System</div>
+                <div class="grid-2">
+                    <div>
+                        <input type="text" id="reportTitle" placeholder="Report Title" style="width:100%;">
+                        <input type="text" id="reportInvestigator" placeholder="Lead Investigator" style="width:100%;">
+                        <select id="reportType" style="width:100%;">
+                            <option value="incident">Incident Report</option>
+                            <option value="forensic">Forensic Analysis</option>
+                            <option value="threat-intel">Threat Intelligence</option>
+                            <option value="compliance">Compliance Report</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="reportFormat" style="width:100%;">
+                            <option value="executive">Executive Summary</option>
+                            <option value="technical">Technical Report</option>
+                            <option value="legal">Legal Documentation</option>
+                        </select>
+                        <input type="date" id="reportDate" style="width:100%;">
+                        <button onclick="generateAdvancedReport()" style="width:100%;margin-bottom:1rem;">📋 Generate Report</button>
+                <button onclick="exportAllReports()" style="width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);">📥 Export All Reports</button>
+                    </div>
+                </div>
+                <textarea id="reportSummary" placeholder="Executive summary..." style="width:100%;height:100px;"></textarea>
+                <div id="reportsContainer"></div>
+            </div>
+        </div>
+
+        <!-- ML Insights Tab -->
+        <div id="ml-insights" class="tab-content">
+            <div class="card">
+                <div class="card-title">🧠 Machine Learning Insights</div>
+                <div class="grid-2">
+                    <div class="card" style="background:rgba(124,58,237,0.1);">
+                        <h3>🎯 Predictive Analytics</h3>
+                        <p>Next likely attack vector: <strong>Spear Phishing</strong></p>
+                        <p>Probability: <strong>87%</strong></p>
+                        <p>Estimated timeframe: <strong>24-48 hours</strong></p>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+                    </div>
+                    <div class="card" style="background:rgba(34,197,94,0.1);">
+                        <h3>🔍 Pattern Recognition</h3>
+                        <p>Similar attack patterns: <strong>23 matches</strong></p>
+                        <p>Success rate: <strong>12%</strong></p>
+                        <p>Recommended action: <strong>Proactive blocking</strong></p>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 92%"></div></div>
+                    </div>
+                </div>
+                
+                <div class="ai-analysis">
+                    <h3>🤖 AI Recommendations</h3>
+                    <ul style="margin-left:1rem;margin-top:0.5rem;">
+                        <li>Implement advanced email filtering for domains: suspicious-bank.com, fake-paypal.net</li>
+                        <li>Increase monitoring for accounts: finance@company.com, ceo@company.com</li>
+                        <li>Deploy honeypot emails to detect reconnaissance activities</li>
+                        <li>Update threat intelligence feeds with new IOCs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:5000';
+        let caseCounter = 1000;
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.floating-particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function showTab(tabName) {
+            // Add fade out animation to current tab
+            const currentTab = document.querySelector('.tab-content.active');
+            if (currentTab) {
+                currentTab.style.opacity = '0';
+                currentTab.style.transform = 'translateY(20px)';
+            }
+            
+            setTimeout(() => {
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.style.opacity = '';
+                    tab.style.transform = '';
+                });
+                document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+                
+                document.getElementById(tabName).classList.add('active');
+                event.target.classList.add('active');
+                
+                // Add fade in animation to new tab
+                const newTab = document.getElementById(tabName);
+                newTab.style.opacity = '0';
+                newTab.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    newTab.style.transition = 'all 0.5s ease';
+                    newTab.style.opacity = '1';
+                    newTab.style.transform = 'translateY(0)';
+                }, 50);
+            }, 200);
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard`);
+                const data = await response.json();
+                
+                document.getElementById('activeInvestigations').textContent = data.activeInvestigations || 12;
+                document.getElementById('evidenceItems').textContent = data.evidenceItems || 347;
+                document.getElementById('threatsDetected').textContent = data.threatsDetected || 89;
+                document.getElementById('casesResolved').textContent = data.casesResolved || 156;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+            
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            document.getElementById('caseId').value = `FR-2024-${++caseCounter}`;
+            document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        async function runAIAnalysis() {
+            const content = document.getElementById('aiEmailContent').value;
+            const type = document.getElementById('analysisType').value;
+            
+            if (!content) {
+                showNotification('Please provide email content for analysis', 'warning');
+                return;
+            }
+            
+            const results = document.getElementById('aiResults');
+            results.innerHTML = '<div class="ai-analysis">🤖 <span class="loading-spinner"></span> AI Analysis in progress...</div>';
+            
+            // Simulate AI processing with progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) {
+                    clearInterval(progressInterval);
+                    progress = 100;
+                }
+                results.innerHTML = `<div class="ai-analysis">🤖 <span class="loading-spinner"></span> AI Analysis in progress... ${Math.floor(progress)}%</div>`;
+            }, 200);
+            
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                const aiScore = Math.floor(Math.random() * 30) + 70;
+                const threatLevel = aiScore > 85 ? 'HIGH' : aiScore > 70 ? 'MEDIUM' : 'LOW';
+                const confidence = Math.floor(Math.random() * 20) + 80;
+                
+                results.innerHTML = `
+                    <div class="ai-analysis" style="animation: slideInUp 0.6s ease-out;">
+                        <h3>🎯 AI Analysis Results</h3>
+                        <div class="progress-bar" style="margin: 1rem 0;">
+                            <div class="progress-fill" style="width: ${aiScore}%"></div>
+                        </div>
+                        <p><strong>Threat Score:</strong> <span class="threat-${threatLevel.toLowerCase()}">${aiScore}/100</span></p>
+                        <p><strong>Threat Level:</strong> <span class="threat-${threatLevel.toLowerCase()}">${threatLevel}</span></p>
+                        <p><strong>Confidence:</strong> ${confidence}%</p>
+                        <p><strong>Key Indicators:</strong></p>
+                        <ul style="margin-left:1rem;">
+                            <li>🚨 Suspicious sender reputation (IP: 185.220.101.42)</li>
+                            <li>⚠️ Urgency keywords detected: "urgent", "immediate action"</li>
+                            <li>🔍 Grammatical inconsistencies suggesting non-native speaker</li>
+                            <li>🎭 Domain spoofing attempt detected</li>
+                        </ul>
+                        <p><strong>Recommendation:</strong> <span class="threat-${aiScore > 85 ? 'critical' : 'high'}">QUARANTINE IMMEDIATELY</span></p>
+                    </div>
+                `;
+                
+                showNotification('AI Analysis completed successfully!', 'success');
+            }, 3000);
+        }
+
+        async function analyzeEmail() {
+            const headers = document.getElementById('emailHeaders').value;
+            const ip = document.getElementById('senderIP').value;
+            const domain = document.getElementById('senderDomain').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/analyze-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ headers, senderIP: ip, domain })
+                });
+                const result = await response.json();
+                
+                const riskScore = Math.floor(Math.random() * 40) + 60;
+                const geoLocation = ['Russia', 'China', 'Nigeria', 'Romania', 'Brazil'][Math.floor(Math.random() * 5)];
+                
+                document.getElementById('analysisResults').innerHTML = `
+                    <div class="alert alert-${result.threat_level === 'high' ? 'danger' : 'warning'}" style="margin-top:1rem;">
+                        <h4>🔍 Advanced Analysis Results</h4>
+                        <p><strong>Threat Level:</strong> <span class="threat-${result.threat_level}">${result.threat_level.toUpperCase()}</span></p>
+                        <p><strong>Risk Score:</strong> ${riskScore}/100</p>
+                        <p><strong>Geo-Location:</strong> ${geoLocation}</p>
+                        <p><strong>Reputation Score:</strong> ${result.reputation_score}/100</p>
+                        <p><strong>Domain Age:</strong> ${Math.floor(Math.random() * 30)} days (Suspicious)</p>
+                        <p><strong>AI Recommendations:</strong></p>
+                        <ul style="margin-left:1rem;">
+                            ${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                            <li>Add sender to threat intelligence database</li>
+                            <li>Monitor similar patterns across organization</li>
+                        </ul>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error analyzing email:', error);
+            }
+        }
+
+        function createInvestigation() {
+            const caseId = document.getElementById('caseId').value;
+            const priority = document.getElementById('priority').value;
+            const type = document.getElementById('investigationType').value;
+            const investigator = document.getElementById('investigatorName').value;
+            const description = document.getElementById('caseDescription').value;
+            
+            if (!investigator || !description) {
+                showNotification('Please fill all required fields', 'warning');
+                return;
+            }
+            
+            // Animate button
+            const button = event.target;
+            button.innerHTML = '<span class="loading-spinner"></span> Creating...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                showNotification(`✅ Investigation ${caseId} created successfully!`, 'success');
+                
+                // Clear form and generate new case ID
+                document.getElementById('investigatorName').value = '';
+                document.getElementById('caseDescription').value = '';
+                document.getElementById('caseId').value = `FR-2024-${++caseCounter}`;
+                
+                button.innerHTML = '📝 Create Investigation';
+                button.disabled = false;
+                
+                // Update dashboard counter
+                const activeInvestigations = document.getElementById('activeInvestigations');
+                activeInvestigations.textContent = parseInt(activeInvestigations.textContent) + 1;
+                activeInvestigations.style.animation = 'none';
+                setTimeout(() => {
+                    activeInvestigations.style.animation = 'numberCount 0.5s ease-out';
+                }, 10);
+            }, 1500);
+        }
+
+        function addEvidence() {
+            const type = document.getElementById('evidenceType').value;
+            const source = document.getElementById('evidenceSource').value;
+            const priority = document.getElementById('evidencePriority').value;
+            const description = document.getElementById('evidenceDescription').value;
+            
+            if (!type || !source || !description) {
+                showNotification('Please fill all required fields', 'warning');
+                return;
+            }
+            
+            const button = event.target;
+            button.innerHTML = '<span class="loading-spinner"></span> Processing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                const evidenceId = `EV-${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
+                const hash = `SHA256:${Math.random().toString(36).substring(2, 8)}...`;
+                
+                const table = document.getElementById('evidenceTable');
+                const newRow = document.createElement('tr');
+                newRow.style.animation = 'slideInLeft 0.5s ease-out';
+                newRow.innerHTML = `
+                    <td>${evidenceId}</td>
+                    <td>${type}</td>
+                    <td>${source}</td>
+                    <td><span class="threat-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span></td>
+                    <td>${hash}</td>
+                    <td>⏳ Processing</td>
+                    <td>
+                        <button onclick="viewEvidence('${evidenceId}')" style="padding:0.25rem 0.5rem;margin-right:0.25rem;">View</button>
+                        <button onclick="downloadEvidence('${evidenceId}')" style="padding:0.25rem 0.5rem;">⬇️</button>
+                    </td>
+                `;
+                table.appendChild(newRow);
+                
+                // Update status to verified after a delay
+                setTimeout(() => {
+                    const statusCell = newRow.cells[5];
+                    statusCell.innerHTML = '✅ Verified';
+                    statusCell.style.color = '#34d399';
+                }, 2000);
+                
+                // Clear form
+                document.getElementById('evidenceType').value = '';
+                document.getElementById('evidenceSource').value = '';
+                document.getElementById('evidenceDescription').value = '';
+                
+                button.innerHTML = '📎 Add Evidence';
+                button.disabled = false;
+                
+                showNotification(`Evidence ${evidenceId} added successfully!`, 'success');
+                
+                // Update dashboard counter
+                const evidenceItems = document.getElementById('evidenceItems');
+                evidenceItems.textContent = parseInt(evidenceItems.textContent) + 1;
+                evidenceItems.style.animation = 'none';
+                setTimeout(() => {
+                    evidenceItems.style.animation = 'numberCount 0.5s ease-out';
+                }, 10);
+            }, 1500);
+        }
+
+        function generateAdvancedReport() {
+            const title = document.getElementById('reportTitle').value;
+            const investigator = document.getElementById('reportInvestigator').value;
+            const type = document.getElementById('reportType').value;
+            const format = document.getElementById('reportFormat').value;
+            const summary = document.getElementById('reportSummary').value;
+            const date = document.getElementById('reportDate').value;
+            
+            if (!title || !investigator || !summary) {
+                showNotification('Please fill all required fields', 'warning');
+                return;
+            }
+            
+            const button = event.target;
+            button.innerHTML = '<span class="loading-spinner"></span> Generating...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                const reportId = `RPT-${Date.now()}`;
+                const container = document.getElementById('reportsContainer');
+                
+                const newReport = document.createElement('div');
+                newReport.className = 'card';
+                newReport.style.cssText = 'margin-top:1rem;background:rgba(15,23,42,0.8);animation:slideInUp 0.6s ease-out;';
+                newReport.innerHTML = `
+                    <h4>📋 ${title}</h4>
+                    <div class="grid-2" style="margin:1rem 0;">
+                        <div>
+                            <p><strong>Report ID:</strong> ${reportId}</p>
+                            <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                            <p><strong>Format:</strong> ${format.charAt(0).toUpperCase() + format.slice(1)}</p>
+                        </div>
+                        <div>
+                            <p><strong>Investigator:</strong> ${investigator}</p>
+                            <p><strong>Date:</strong> ${date}</p>
+                            <p><strong>Status:</strong> <span class="threat-low">Generated</span></p>
+                        </div>
+                    </div>
+                    <p><strong>Summary:</strong> ${summary}</p>
+                    <div style="margin-top:1rem;">
+                        <button onclick="downloadReport('${reportId}', 'pdf')" style="margin-right:0.5rem;">📥 Download PDF</button>
+                        <button onclick="downloadReport('${reportId}', 'json')" style="margin-right:0.5rem;">📊 Download JSON</button>
+                        <button onclick="emailReport('${reportId}')" style="margin-right:0.5rem;">📧 Email Report</button>
+                        <button onclick="shareReport('${reportId}')">🔗 Share Link</button>
+                    </div>
+                `;
+                
+                container.appendChild(newReport);
+                
+                // Clear form
+                document.getElementById('reportTitle').value = '';
+                document.getElementById('reportInvestigator').value = '';
+                document.getElementById('reportSummary').value = '';
+                
+                button.innerHTML = '📋 Generate Report';
+                button.disabled = false;
+                
+                showNotification(`Report ${reportId} generated successfully!`, 'success');
+            }, 2000);
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger'}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 400px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            notification.innerHTML = `
+                <strong>${type.toUpperCase()}:</strong> ${message}
+                <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: inherit; font-size: 1.2rem; cursor: pointer;">×</button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease-out';
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+        
+        // Add CSS for notification animations
+        const notificationStyles = document.createElement('style');
+        notificationStyles.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            @keyframes slideInUp {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(notificationStyles);
+
+        // Real-time updates simulation with smooth animations
+        setInterval(() => {
+            const elements = document.querySelectorAll('.real-time');
+            elements.forEach(el => {
+                const current = parseInt(el.textContent);
+                const change = Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                if (change !== 0) {
+                    const newValue = Math.max(0, current + change);
+                    
+                    // Animate number change
+                    el.style.transform = 'scale(1.1)';
+                    el.style.color = change > 0 ? '#34d399' : '#ff6b6b';
+                    
+                    setTimeout(() => {
+                        el.textContent = newValue;
+                        el.style.transform = 'scale(1)';
+                        el.style.color = '';
+                    }, 200);
+                }
+            });
+            
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }, 12000);
+
+        // Download functions
+        function downloadReport(reportId, format) {
+            const reportData = {
+                id: reportId,
+                title: 'Investigation Report',
+                investigator: 'Security Team',
+                date: new Date().toLocaleDateString(),
+                summary: 'Comprehensive cybersecurity investigation report',
+                cases: document.getElementById('activeInvestigations').textContent,
+                evidence: document.getElementById('evidenceItems').textContent
+            };
+            
+            if (format === 'pdf') {
+                const pdfContent = `CyberForensics Pro Report\n\nReport ID: ${reportData.id}\nTitle: ${reportData.title}\nInvestigator: ${reportData.investigator}\nDate: ${reportData.date}\n\nSummary: ${reportData.summary}\n\nActive Cases: ${reportData.cases}\nEvidence Items: ${reportData.evidence}`;
+                downloadFile(`report_${reportId}.txt`, pdfContent);
+            } else if (format === 'json') {
+                downloadFile(`report_${reportId}.json`, JSON.stringify(reportData, null, 2));
+            }
+        }
+        
+        function downloadEvidence(evidenceId) {
+            const evidence = {
+                id: evidenceId,
+                type: 'Email Headers',
+                source: 'Exchange Server',
+                hash: 'SHA256:a1b2c3d4e5f6...',
+                timestamp: new Date().toISOString(),
+                content: 'From: suspicious@fake-bank.com\nTo: victim@company.com\nSubject: URGENT ACTION REQUIRED',
+                analysis: {
+                    threat_score: 89,
+                    indicators: ['Suspicious IP', 'Domain spoofing'],
+                    recommendation: 'QUARANTINE'
+                }
+            };
+            downloadFile(`evidence_${evidenceId}.json`, JSON.stringify(evidence, null, 2));
+        }
+        
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            alert(`Downloaded: ${filename}`);
+        }
+        
+        function emailReport(reportId) {
+            const email = prompt('Enter email address:');
+            if (email) {
+                alert(`Report ${reportId} sent to ${email}`);
+            }
+        }
+        
+        function shareReport(reportId) {
+            const shareUrl = `https://cyberforensics.pro/reports/${reportId}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert(`Share link copied: ${shareUrl}`);
+            }).catch(() => {
+                prompt('Copy this link:', shareUrl);
+            });
+        }
+        
+        function viewEvidence(evidenceId) {
+            alert(`Evidence ID: ${evidenceId}\nType: Email Headers\nStatus: Verified\nThreat Score: 89/100`);
+        }
+        
+        function exportAllReports() {
+            const allReports = {
+                export_date: new Date().toISOString(),
+                total_reports: 5,
+                reports: [
+                    {id: 'RPT-001', title: 'Email Fraud Investigation', status: 'Complete'},
+                    {id: 'RPT-002', title: 'Phishing Campaign Analysis', status: 'In Progress'}
+                ]
+            };
+            downloadFile('all_reports_export.json', JSON.stringify(allReports, null, 2));
+        }
+        
+        function exportAllEvidence() {
+            const allEvidence = {
+                export_date: new Date().toISOString(),
+                total_evidence: 12,
+                evidence: [
+                    {id: 'EV-001', type: 'Email Headers', hash: 'SHA256:a1b2c3...', status: 'Verified'},
+                    {id: 'EV-002', type: 'IP Logs', hash: 'SHA256:d4e5f6...', status: 'Processing'}
+                ]
+            };
+            downloadFile('all_evidence_export.json', JSON.stringify(allEvidence, null, 2));
+        }
+        
+        // Auth functions
+        function showAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-form').classList.add('active');
+        }
+        
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            // Demo login
+            if ((email === 'admin@cyber.com' && password === 'admin123') || (email && password)) {
+                // Update user info in header
+                const name = email === 'admin@cyber.com' ? 'Admin User' : email.split('@')[0];
+                document.getElementById('userName').textContent = name;
+                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+                
+                alert('Login successful! Welcome to CyberForensics Pro');
+                document.getElementById('auth-screen').style.display = 'none';
+                initializeApp();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+        
+        function handleSignup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const org = document.getElementById('signupOrg').value;
+            
+            if (!name || !email || !password || !org) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            // Update user info in header
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+            
+            alert('Account created successfully! Welcome aboard!');
+            document.getElementById('auth-screen').style.display = 'none';
+            initializeApp();
+        }
+        
+        function initializeApp() {
+            // Show user account in header
+            document.getElementById('userAccount').style.display = 'flex';
+            loadDashboard();
+            createParticles();
+        }
+        
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                document.getElementById('userAccount').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
+                // Clear form fields
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        // Enhanced initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show auth screen after startup animation
+            setTimeout(() => {
+                document.getElementById('startup-screen').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
+            }, 4000);
+
+            
+            // Add smooth scrolling
+            document.documentElement.style.scrollBehavior = 'smooth';
+            
+            // Add loading animation to buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                    }
+                });
+            });
+            
+            // Add focus animations to inputs
+            document.querySelectorAll('input, textarea, select').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = '#34d399';
+                    this.style.boxShadow = '0 0 0 3px rgba(52, 211, 153, 0.1)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.borderColor = '';
+                    this.style.boxShadow = '';
+                });
+            });
+            
+            // Add hover effects to cards
+            document.querySelectorAll('.card, .status-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
