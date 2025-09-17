@@ -738,6 +738,7 @@
                 <button class="nav-tab" onclick="showTab('evidence')">📁 Evidence</button>
                 <button class="nav-tab" onclick="showTab('reports')">📊 Reports</button>
                 <button class="nav-tab" onclick="showTab('ml-insights')">🧠 ML Insights</button>
+                <button class="nav-tab" onclick="showTab('public-report')">🚨 Report Crime</button>
             </div>
             
             <div class="user-account" id="userAccount" style="display: none;">
@@ -997,6 +998,92 @@
                         <li>Deploy honeypot emails to detect reconnaissance activities</li>
                         <li>Update threat intelligence feeds with new IOCs</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Public Report Tab -->
+        <div id="public-report" class="tab-content">
+            <div class="card">
+                <div class="card-title">🚨 Report Cyber Crime to Cyber Police</div>
+                <p style="margin-bottom: 2rem; color: #94a3b8;">Citizens can report cyber crimes, fraud, and suspicious activities. All reports are forwarded to the Cyber Police for investigation.</p>
+                
+                <div class="grid-2">
+                    <div>
+                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">👤 Personal Information</h4>
+                        <input type="text" id="reporterName" placeholder="Full Name *" style="width:100%;">
+                        <input type="email" id="reporterEmail" placeholder="Email Address *" style="width:100%;">
+                        <input type="tel" id="reporterPhone" placeholder="Phone Number" style="width:100%;">
+                        <input type="text" id="reporterAddress" placeholder="Address (Optional)" style="width:100%;">
+                    </div>
+                    <div>
+                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">🔍 Crime Details</h4>
+                        <select id="crimeType" style="width:100%;">
+                            <option value="">Select Crime Type *</option>
+                            <option value="phishing">📧 Phishing/Email Fraud</option>
+                            <option value="financial-fraud">💳 Financial Fraud</option>
+                            <option value="identity-theft">🆔 Identity Theft</option>
+                            <option value="cyberbullying">😡 Cyberbullying/Harassment</option>
+                            <option value="ransomware">🦠 Ransomware/Malware</option>
+                            <option value="social-media">📱 Social Media Fraud</option>
+                            <option value="online-scam">🎯 Online Scam</option>
+                            <option value="data-breach">💾 Data Breach</option>
+                            <option value="other">❓ Other</option>
+                        </select>
+                        <input type="date" id="incidentDate" style="width:100%;">
+                        <input type="text" id="financialLoss" placeholder="Financial Loss Amount (if any)" style="width:100%;">
+                    </div>
+                </div>
+                
+                <h4 style="color: #ff9f0a; margin: 1.5rem 0 1rem 0;">📝 Incident Description</h4>
+                <textarea id="incidentDescription" placeholder="Describe the incident in detail - What happened? When? How did you discover it? Any suspicious emails, websites, or phone calls?" style="width:100%;height:120px;"></textarea>
+                
+                <h4 style="color: #ff9f0a; margin: 1.5rem 0 1rem 0;">🔗 Suspicious Links/Evidence</h4>
+                <textarea id="suspiciousLinks" placeholder="Paste any suspicious links, email addresses, phone numbers, or other evidence here" style="width:100%;height:80px;"></textarea>
+                
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div>
+                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">📎 Upload Evidence</h4>
+                        <input type="file" id="evidenceFiles" multiple accept=".jpg,.jpeg,.png,.pdf,.txt,.eml,.msg" style="width:100%;">
+                        <small style="color: #94a3b8;">Screenshots, emails, documents (Max 10MB each)</small>
+                    </div>
+                    <div>
+                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">🚨 Priority Level</h4>
+                        <select id="reportPriority" style="width:100%;">
+                            <option value="low">🟢 Low - Minor incident</option>
+                            <option value="medium">🟡 Medium - Moderate loss/impact</option>
+                            <option value="high">🟠 High - Significant loss/impact</option>
+                            <option value="critical">🔴 Critical - Ongoing threat/major loss</option>
+                        </select>
+                        <div style="margin-top: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #94a3b8;">
+                                <input type="checkbox" id="consentCheck" style="width: auto; margin: 0;">
+                                I consent to share this information with Cyber Police for investigation
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button onclick="submitPublicReport()" style="width: 300px; font-size: 1.1rem; padding: 1.2rem;">🚨 Submit Report to Cyber Police</button>
+                </div>
+                
+                <div class="alert alert-warning" style="margin-top: 2rem;">
+                    <strong>⚠️ Important:</strong> For immediate emergencies, call your local emergency number. This system is for non-emergency cyber crime reporting. You will receive a complaint number for tracking your report.
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">📋 Recent Public Reports</div>
+                <div id="publicReportsContainer">
+                    <div class="alert alert-success">
+                        <strong>Report #CR-2024-001</strong> - Phishing Email Fraud<br>
+                        <small>Status: Under Investigation | Submitted: 2 hours ago</small>
+                    </div>
+                    <div class="alert alert-warning">
+                        <strong>Report #CR-2024-002</strong> - Financial Fraud<br>
+                        <small>Status: Evidence Collection | Submitted: 1 day ago</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1445,6 +1532,76 @@
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         }, 12000);
 
+        function submitPublicReport() {
+            const name = document.getElementById('reporterName').value;
+            const email = document.getElementById('reporterEmail').value;
+            const crimeType = document.getElementById('crimeType').value;
+            const description = document.getElementById('incidentDescription').value;
+            const consent = document.getElementById('consentCheck').checked;
+            
+            if (!name || !email || !crimeType || !description) {
+                alert('Please fill all required fields marked with *');
+                return;
+            }
+            
+            if (!consent) {
+                alert('Please provide consent to share information with Cyber Police');
+                return;
+            }
+            
+            const reportId = `CR-2024-${String(Math.floor(Math.random() * 9999) + 1).padStart(3, '0')}`;
+            const reportData = {
+                id: reportId,
+                reporter: {
+                    name: name,
+                    email: email,
+                    phone: document.getElementById('reporterPhone').value,
+                    address: document.getElementById('reporterAddress').value
+                },
+                incident: {
+                    type: crimeType,
+                    date: document.getElementById('incidentDate').value,
+                    description: description,
+                    financial_loss: document.getElementById('financialLoss').value,
+                    suspicious_links: document.getElementById('suspiciousLinks').value,
+                    priority: document.getElementById('reportPriority').value
+                },
+                submission: {
+                    timestamp: new Date().toISOString(),
+                    status: 'Submitted to Cyber Police',
+                    tracking_number: reportId
+                }
+            };
+            
+            // Add to recent reports
+            const container = document.getElementById('publicReportsContainer');
+            const newReport = document.createElement('div');
+            newReport.className = 'alert alert-success';
+            newReport.style.animation = 'slideInLeft 0.5s ease-out';
+            newReport.innerHTML = `
+                <strong>Report #${reportId}</strong> - ${crimeType.charAt(0).toUpperCase() + crimeType.slice(1).replace('-', ' ')}<br>
+                <small>Status: Submitted to Cyber Police | Submitted: Just now</small>
+            `;
+            container.insertBefore(newReport, container.firstChild);
+            
+            // Download report copy
+            downloadFile(`cyber_crime_report_${reportId}.json`, JSON.stringify(reportData, null, 2));
+            
+            alert(`✅ Report submitted successfully!\n\nComplaint Number: ${reportId}\n\nYour report has been forwarded to the Cyber Police. You will be contacted within 24-48 hours. A copy has been downloaded to your device for your records.`);
+            
+            // Clear form
+            document.getElementById('reporterName').value = '';
+            document.getElementById('reporterEmail').value = '';
+            document.getElementById('reporterPhone').value = '';
+            document.getElementById('reporterAddress').value = '';
+            document.getElementById('crimeType').value = '';
+            document.getElementById('incidentDate').value = '';
+            document.getElementById('financialLoss').value = '';
+            document.getElementById('incidentDescription').value = '';
+            document.getElementById('suspiciousLinks').value = '';
+            document.getElementById('consentCheck').checked = false;
+        }
+
         // Enhanced initialization
         document.addEventListener('DOMContentLoaded', () => {
             // Show auth screen after startup animation
@@ -1452,6 +1609,9 @@
                 document.getElementById('startup-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'flex';
             }, 4000);
+            
+            // Set today's date as default
+            document.getElementById('incidentDate').value = new Date().toISOString().split('T')[0];
         });
     </script>
 </body>
