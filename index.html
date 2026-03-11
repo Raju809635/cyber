@@ -3,101 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberForensics Pro - AI-Powered Security Platform</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    <title>Cyber Command Grid - AI Security Platform</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HGDBFWLLNY"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
+        :root {
+            --bg-0: #060912;
+            --bg-1: #0b1220;
+            --bg-2: #111c33;
+            --neon-cyan: #35f2ff;
+            --neon-green: #69ff9f;
+            --neon-red: #ff4d6d;
+            --text-main: #d8e8ff;
+            --panel-bg: rgba(5, 16, 36, 0.76);
+            --panel-border: rgba(53, 242, 255, 0.35);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f, #1a0f2e); 
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            color: #e2e8f0; 
-            min-height: 100vh; 
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 12% 8%, #122847 0%, transparent 32%),
+                        radial-gradient(circle at 86% 16%, #0f3b2f 0%, transparent 28%),
+                        linear-gradient(130deg, var(--bg-0), var(--bg-1) 48%, var(--bg-2));
+            background-size: 100% 100%;
+            color: var(--text-main);
+            min-height: 100vh;
+            position: relative;
             overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(53, 242, 255, 0.08) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(53, 242, 255, 0.08) 1px, transparent 1px);
+            background-size: 42px 42px;
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.015) 0,
+                rgba(255, 255, 255, 0.015) 1px,
+                transparent 1px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: -1;
         }
         
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
-        }
-        
-        /* Startup Screen */
-        .startup-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            animation: startupFadeOut 1s ease-in-out 3s forwards;
-        }
-        
-        .startup-content {
-            text-align: center;
-            animation: startupSlideUp 1.5s ease-out;
-        }
-        
-        .startup-logo {
-            font-size: 6rem;
-            margin-bottom: 1rem;
-            animation: logoSpin 2s ease-in-out;
-        }
-        
-        .startup-title {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #ff453a, #ff9f0a, #bf5af2);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-            animation: titleGlow 2s ease-in-out infinite alternate;
-        }
-        
-        .startup-subtitle {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            margin-bottom: 2rem;
-            animation: subtitleFade 1s ease-in 0.5s both;
-        }
-        
-        .startup-loading {
-            animation: loadingFade 1s ease-in 1s both;
-        }
-        
-        .loading-bar {
-            width: 300px;
-            height: 4px;
-            background: rgba(255, 69, 58, 0.2);
-            border-radius: 2px;
-            margin: 0 auto 1rem;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .loading-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff453a, #ff9f0a, #bf5af2);
-            animation: loadingProgress 2s ease-in-out 1.5s forwards;
-        }
-        
-        .loading-text {
-            color: #64748b;
-            font-size: 0.9rem;
         }
         
         /* Auth Screen */
@@ -107,7 +83,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -115,14 +90,14 @@
         }
         
         .auth-container {
-            background: rgba(30, 15, 25, 0.9);
+            background: linear-gradient(160deg, rgba(5, 16, 36, 0.9), rgba(6, 20, 31, 0.86));
             border-radius: 20px;
             padding: 3rem;
             width: 100%;
             max-width: 400px;
-            border: 1px solid rgba(255, 69, 58, 0.3);
+            border: 1px solid var(--panel-border);
             backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 45px rgba(53, 242, 255, 0.15), 0 28px 60px rgba(0, 0, 0, 0.45);
         }
         
         .auth-header {
@@ -136,24 +111,22 @@
         }
         
         .auth-header h2 {
-            background: linear-gradient(45deg, #ff453a, #ff9f0a);
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-green));
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
-        }
-        
-        .auth-header p {
-            color: #94a3b8;
-            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
         }
         
         .auth-tabs {
             display: flex;
             margin-bottom: 2rem;
-            background: rgba(15, 15, 15, 0.5);
+            background: rgba(4, 13, 27, 0.75);
             border-radius: 12px;
             padding: 0.25rem;
+            border: 1px solid rgba(53, 242, 255, 0.2);
         }
         
         .auth-tab {
@@ -169,8 +142,9 @@
         }
         
         .auth-tab.active {
-            background: linear-gradient(135deg, #ff453a, #ff9f0a);
+            background: linear-gradient(135deg, var(--neon-cyan), #1888ff);
             color: white;
+            box-shadow: 0 0 16px rgba(53, 242, 255, 0.3);
         }
         
         .auth-form {
@@ -185,541 +159,242 @@
             width: 100%;
             padding: 1rem;
             margin-bottom: 1rem;
-            background: rgba(15, 15, 15, 0.6);
-            border: 1px solid rgba(255, 69, 58, 0.3);
+            background: rgba(4, 13, 27, 0.7);
+            border: 1px solid rgba(53, 242, 255, 0.2);
             border-radius: 12px;
-            color: #e2e8f0;
+            color: var(--text-main);
             font-size: 0.95rem;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 0 3px rgba(53, 242, 255, 0.12);
         }
         
         .auth-button {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2);
+            background: linear-gradient(135deg, #1888ff, var(--neon-cyan), #26d97c);
             border: none;
             border-radius: 12px;
-            color: white;
+            color: #031323;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
             margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            letter-spacing: 0.02em;
         }
         
-        .auth-demo {
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(53, 242, 255, 0.35);
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .otp-container {
+            display: none;
             text-align: center;
-            padding: 1rem;
-            background: rgba(255, 159, 10, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 159, 10, 0.2);
         }
         
-        .auth-demo small {
-            color: #fcd34d;
-        }
-        
-        .auth-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 69, 58, 0.2);
-        }
-        
-        .auth-footer p {
-            color: #64748b;
-            font-size: 0.8rem;
-        }
-        
-        /* Main App Styles */
-        .header { 
-            background: rgba(15, 23, 42, 0.95); 
-            padding: 1rem 2rem; 
-            border-bottom: 1px solid rgba(255, 69, 58, 0.3); 
-            backdrop-filter: blur(20px); 
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .header-content { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            max-width: 1400px; 
-            margin: 0 auto; 
-        }
-        
-        .logo { 
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            background: linear-gradient(45deg, #ff453a, #ff9f0a, #bf5af2);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255, 69, 58, 0.5);
-            animation: logoGlow 3s ease-in-out infinite alternate;
-        }
-        
-        .nav-tabs { 
-            display: flex; 
-            gap: 0.5rem; 
-        }
-        
-        .nav-tab { 
-            padding: 0.75rem 1.5rem; 
-            background: rgba(30, 15, 25, 0.6); 
-            border: 1px solid rgba(255, 69, 58, 0.2); 
-            border-radius: 12px; 
-            color: #cbd5e1; 
-            cursor: pointer; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .nav-tab.active, .nav-tab:hover { 
-            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2); 
-            transform: translateY(-3px) scale(1.05); 
-            box-shadow: 0 10px 30px rgba(255, 69, 58, 0.4);
-            border-color: rgba(255, 159, 10, 0.6);
-        }
-        
-        .user-account {
+        .otp-input {
             display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: rgba(30, 15, 25, 0.6);
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 69, 58, 0.3);
-            backdrop-filter: blur(10px);
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #ff453a, #ff9f0a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: white;
+            gap: 0.5rem;
+            margin: 1rem 0;
         }
         
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .user-name {
-            font-weight: 600;
-            color: #e2e8f0;
-            font-size: 0.9rem;
-        }
-        
-        .user-role {
-            font-size: 0.75rem;
-            color: #94a3b8;
-        }
-        
-        .logout-btn {
-            background: rgba(255, 69, 58, 0.2);
-            border: 1px solid rgba(255, 69, 58, 0.3);
-            color: #ff6b6b;
-            padding: 0.5rem 1rem;
+        .otp-digit {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid rgba(53, 242, 255, 0.3);
             border-radius: 8px;
+            background: rgba(4, 13, 27, 0.7);
+            color: var(--text-main);
+        }
+        
+        .otp-digit:focus {
+            border-color: var(--neon-cyan);
+            outline: none;
+        }
+        
+        .resend-otp {
+            background: none;
+            border: none;
+            color: #ff9f0a;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
+            text-decoration: underline;
+            font-size: 0.9rem;
+            margin-top: 1rem;
         }
         
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            padding: 2rem; 
-        }
-        
-        .tab-content { 
-            display: none; 
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .tab-content.active { 
-            display: block; 
-        }
-        
-        .status-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 1.5rem; 
-            margin-bottom: 2rem; 
-        }
-        
-        .status-card { 
-            background: linear-gradient(135deg, rgba(30, 15, 25, 0.8), rgba(45, 20, 35, 0.6)); 
-            padding: 2rem; 
-            border-radius: 20px; 
-            text-align: center; 
-            position: relative; 
-            overflow: hidden; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: 1px solid rgba(255, 69, 58, 0.2);
-            backdrop-filter: blur(20px);
-        }
-        
-        .status-card:hover { 
-            transform: translateY(-10px) rotateX(5deg); 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .status-card::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            height: 4px; 
-            background: linear-gradient(90deg, #ff453a, #ff9f0a, #bf5af2, #30d158); 
-            background-size: 200% 100%;
-            animation: shimmer 3s linear infinite;
-        }
-        
-        .status-number { 
-            font-size: 2.5rem; 
-            font-weight: 700; 
-            background: linear-gradient(45deg, #ff453a, #30d158);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem; 
-            position: relative;
-            z-index: 1;
-        }
-        
-        .card { 
-            background: rgba(30, 15, 25, 0.8); 
-            border-radius: 20px; 
-            padding: 2rem; 
-            margin-bottom: 1.5rem; 
-            border: 1px solid rgba(255, 69, 58, 0.2); 
-            backdrop-filter: blur(20px); 
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card-title { 
-            font-size: 1.4rem; 
-            background: linear-gradient(45deg, #ff453a, #ff9f0a);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.75rem; 
-            font-weight: 600;
-        }
-        
-        .alert { 
-            padding: 1.5rem; 
-            margin-bottom: 1rem; 
-            border-radius: 15px; 
-            border-left: 4px solid; 
-            position: relative;
-            overflow: hidden;
-            animation: slideInLeft 0.5s ease-out;
-        }
-        
-        .alert-danger { 
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1)); 
-            border-left-color: #ef4444; 
-            color: #fca5a5; 
-        }
-        
-        .alert-warning { 
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.1)); 
-            border-left-color: #f59e0b; 
-            color: #fcd34d; 
-        }
-        
-        .alert-success { 
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1)); 
-            border-left-color: #22c55e; 
-            color: #86efac; 
-        }
-        
-        input, textarea, select, button { 
-            padding: 1rem; 
-            margin-bottom: 15px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255, 69, 58, 0.2); 
-            background: rgba(30, 15, 25, 0.8); 
-            color: #e2e8f0; 
-            font-size: 0.95rem; 
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-        
-        button { 
-            background: linear-gradient(135deg, #ff453a, #ff9f0a, #bf5af2); 
-            color: white; 
-            cursor: pointer; 
-            font-weight: 600; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 1rem; 
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        th, td { 
-            padding: 1rem; 
-            border-bottom: 1px solid rgba(255, 69, 58, 0.1); 
-            text-align: left; 
-            transition: all 0.3s ease;
-        }
-        
-        th { 
-            background: linear-gradient(135deg, rgba(15, 15, 15, 0.9), rgba(30, 15, 25, 0.8)); 
-            color: #ff9f0a; 
-            font-weight: 600; 
-        }
-        
-        .threat-high { color: #ff6b6b; font-weight: bold; }
-        .threat-medium { color: #ffd93d; font-weight: bold; }
-        .threat-low { color: #6bcf7f; font-weight: bold; }
-        .threat-critical { color: #ff4757; font-weight: bold; animation: criticalPulse 1.5s infinite; }
-        
-        .progress-bar { 
-            width: 100%; 
-            height: 12px; 
-            background: rgba(30, 15, 25, 0.8); 
-            border-radius: 10px; 
-            overflow: hidden; 
-            margin: 0.75rem 0; 
-            position: relative;
-        }
-        
-        .progress-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, #ff453a, #ff9f0a, #30d158); 
-            border-radius: 10px; 
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); 
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .ai-analysis { 
-            background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc); 
-            padding: 1.5rem; 
-            border-radius: 15px; 
-            margin: 1rem 0; 
-            position: relative;
-            overflow: hidden;
-            animation: aiGlow 3s ease-in-out infinite alternate;
-        }
-        
-        .real-time { 
-            animation: pulse 2s infinite, numberCount 0.5s ease-out; 
-        }
-        
-        .chart-container { 
-            height: 250px; 
-            background: linear-gradient(135deg, rgba(15, 15, 15, 0.6), rgba(30, 15, 25, 0.4)); 
-            border-radius: 15px; 
-            padding: 1.5rem; 
-            margin: 1rem 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: 1px solid rgba(255, 69, 58, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: #ff453a;
-            border-radius: 50%;
-            animation: float 6s infinite linear;
-        }
-        
-        .loading-spinner {
+        .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 69, 58, 0.3);
+            border: 2px solid rgba(53, 242, 255, 0.3);
             border-radius: 50%;
-            border-top-color: #ff9f0a;
+            border-top-color: var(--neon-cyan);
             animation: spin 1s ease-in-out infinite;
-        }
-        
-        /* Animations */
-        @keyframes startupSlideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes logoSpin {
-            0% { transform: rotateY(0deg) scale(0.5); opacity: 0; }
-            50% { transform: rotateY(180deg) scale(1.1); opacity: 1; }
-            100% { transform: rotateY(360deg) scale(1); opacity: 1; }
-        }
-        
-        @keyframes titleGlow {
-            from { filter: drop-shadow(0 0 10px rgba(255, 69, 58, 0.3)); }
-            to { filter: drop-shadow(0 0 30px rgba(191, 90, 242, 0.6)); }
-        }
-        
-        @keyframes subtitleFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes loadingFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes loadingProgress {
-            from { left: -100%; }
-            to { left: 100%; }
-        }
-        
-        @keyframes startupFadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        
-        @keyframes logoGlow {
-            from { filter: drop-shadow(0 0 5px rgba(255, 69, 58, 0.3)); }
-            to { filter: drop-shadow(0 0 20px rgba(191, 90, 242, 0.6)); }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-        }
-        
-        @keyframes numberCount {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes criticalPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        @keyframes aiGlow {
-            from { box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); }
-            to { box-shadow: 0 0 40px rgba(168, 85, 247, 0.5); }
-        }
-        
-        @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-10px) rotate(360deg); opacity: 0; }
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         
-        @media (max-width: 768px) {
-            .header-content { flex-direction: column; gap: 1rem; }
-            .nav-tabs { 
-                flex-wrap: wrap; 
-                gap: 0.25rem; 
-                width: 100%;
-                justify-content: center;
-            }
-            .nav-tab { 
-                padding: 0.5rem 0.75rem; 
-                font-size: 0.8rem; 
-                flex: 1;
-                min-width: 120px;
-                text-align: center;
-            }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-            .status-grid { grid-template-columns: 1fr; }
-            .user-account { 
-                order: -1;
-                width: 100%;
-                justify-content: center;
-            }
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
         }
         
-        @media (max-width: 480px) {
-            .nav-tab { 
-                font-size: 0.7rem;
-                padding: 0.4rem 0.5rem;
-                min-width: 100px;
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        /* Main App Styles */
+        .main-app {
+            display: none;
+        }
+        
+        .header {
+            background: rgba(5, 14, 29, 0.9);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(53, 242, 255, 0.3);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-cyan), #1888ff, var(--neon-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(5, 16, 36, 0.75);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(53, 242, 255, 0.28);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1888ff, var(--neon-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #031323;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 77, 109, 0.15);
+            border: 1px solid rgba(255, 77, 109, 0.35);
+            color: #ffc5cf;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card {
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 45px rgba(0, 0, 0, 0.28);
+        }
+        
+        .dashboard-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-green));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 24px rgba(53, 242, 255, 0.32);
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+            
+            .otp-digit {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Startup Animation -->
-    <div id="startup-screen" class="startup-screen">
-        <div class="startup-content">
-            <div class="startup-logo">🛡️</div>
-            <div class="startup-title">CyberForensics Pro</div>
-            <div class="startup-subtitle">AI-Powered Security Platform</div>
-            <div class="startup-loading">
-                <div class="loading-bar"></div>
-                <div class="loading-text">Initializing Security Systems...</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Login/Signup Screen -->
-    <div id="auth-screen" class="auth-screen" style="display: none;">
+    <!-- Authentication Screen -->
+    <div id="auth-screen" class="auth-screen">
         <div class="auth-container">
             <div class="auth-header">
-                <div class="auth-logo">🛡️</div>
-                <h2>CyberForensics Pro</h2>
-                <p>Secure Access Portal</p>
+                <div class="auth-logo">[SEC]</div>
+                <h2>Cyber Command Grid</h2>
+                <p>Secure Access Node</p>
             </div>
+            
+            <div id="message-container"></div>
             
             <div class="auth-tabs">
                 <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
@@ -730,914 +405,476 @@
             <div id="login-form" class="auth-form active">
                 <input type="email" id="loginEmail" placeholder="Email Address" required>
                 <input type="password" id="loginPassword" placeholder="Password" required>
-                <button onclick="handleLogin()" class="auth-button">🔐 Secure Login</button>
-                <div class="auth-demo">
-                    <small>Demo: admin@cyber.com / admin123</small>
-                </div>
+                <button onclick="handleLogin()" class="auth-button" id="loginBtn">
+                    ðŸ” Secure Login
+                </button>
+                <button onclick="handleGoogleLogin()" class="auth-button" style="background: #4285f4;">
+                    ðŸ” Login with Google
+                </button>
             </div>
             
             <!-- Signup Form -->
             <div id="signup-form" class="auth-form">
                 <input type="text" id="signupName" placeholder="Full Name" required>
                 <input type="email" id="signupEmail" placeholder="Email Address" required>
-                <input type="password" id="signupPassword" placeholder="Password" required>
+                <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" required>
                 <input type="text" id="signupOrg" placeholder="Organization" required>
-                <button onclick="handleSignup()" class="auth-button">🚀 Create Account</button>
+                <button onclick="handleSignup()" class="auth-button" id="signupBtn">
+                    ðŸš€ Create Account
+                </button>
             </div>
             
-            <div class="auth-footer">
-                <p>🔒 Enterprise-grade security • 256-bit encryption</p>
+            <!-- OTP Verification -->
+            <div id="otp-container" class="otp-container">
+                <h3>Verify Your Email</h3>
+                <p>Enter the 6-digit code sent to your email</p>
+                <div class="otp-input">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 0)">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 1)">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 2)">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 3)">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 4)">
+                    <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 5)">
+                </div>
+                <button onclick="verifyOTP()" class="auth-button" id="verifyBtn">
+                    âœ… Verify Code
+                </button>
+                <button onclick="resendOTP()" class="resend-otp" id="resendBtn">
+                    Resend Code
+                </button>
             </div>
         </div>
     </div>
     
-    <div class="floating-particles"></div>
-    
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">🛡️ CyberForensics Pro - AI Edition</div>
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="showTab('dashboard')">🏠 Dashboard</button>
-                <button class="nav-tab" onclick="showTab('ai-analysis')">🤖 AI Analysis</button>
-                <button class="nav-tab" onclick="showTab('investigation')">🔍 Investigation</button>
-                <button class="nav-tab" onclick="showTab('evidence')">📁 Evidence</button>
-                <button class="nav-tab" onclick="showTab('reports')">📊 Reports</button>
-                <button class="nav-tab" onclick="showTab('ml-insights')">🧠 ML Insights</button>
-                <button class="nav-tab" onclick="showTab('public-report')">🚨 Report Crime</button>
-            </div>
-            
-            <div class="user-account" id="userAccount" style="display: none;">
-                <div class="user-avatar" id="userAvatar">A</div>
+    <!-- Main Application -->
+    <div id="main-app" class="main-app">
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">Cyber Command Grid</div>
                 <div class="user-info">
-                    <div class="user-name" id="userName">Admin User</div>
-                    <div class="user-role">Security Analyst</div>
-                </div>
-                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <div class="status-grid">
-                <div class="status-card">
-                    <div class="status-number real-time" id="activeInvestigations">12</div>
-                    <div>Active Investigations</div>
-                    <div style="font-size:0.8rem;color:#94a3b8;">↑ 15% from last week</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-number real-time" id="evidenceItems">347</div>
-                    <div>Evidence Items</div>
-                    <div style="font-size:0.8rem;color:#94a3b8;">AI Processed: 98%</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-number real-time" id="threatsDetected">89</div>
-                    <div>Threats Detected</div>
-                    <div style="font-size:0.8rem;color:#ef4444;">🔥 23 Critical</div>
-                </div>
-                <div class="status-card">
-                    <div class="status-number real-time" id="casesResolved">156</div>
-                    <div>Cases Resolved</div>
-                    <div style="font-size:0.8rem;color:#22c55e;">✅ 94% Success Rate</div>
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-title">🚨 Real-Time Threat Feed</div>
-                    <div class="alert alert-danger">
-                        <strong>CRITICAL:</strong> Advanced Persistent Threat detected - CEO impersonation attack
-                        <div style="font-size:0.8rem;margin-top:0.5rem;">Confidence: 97% | Source: AI Engine</div>
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div>
+                        <div id="userName">User</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;" id="userEmail">user@example.com</div>
                     </div>
-                    <div class="alert alert-warning">
-                        <strong>HIGH:</strong> Suspicious wire transfer request from compromised account
-                        <div style="font-size:0.8rem;margin-top:0.5rem;">Confidence: 89% | ML Score: 8.7/10</div>
-                    </div>
-                    <div class="alert alert-success">
-                        <strong>RESOLVED:</strong> Phishing campaign blocked - 1,247 emails quarantined
-                        <div style="font-size:0.8rem;margin-top:0.5rem;">AI Response Time: 0.3s</div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">📈 AI Performance Metrics</div>
-                    <div>Threat Detection Accuracy</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 96%"></div></div>
-                    <small>96% (Industry Leading)</small>
-                    
-                    <div style="margin-top:1rem;">False Positive Rate</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 4%"></div></div>
-                    <small>0.4% (Best in Class)</small>
-                    
-                    <div style="margin-top:1rem;">Response Time</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 98%"></div></div>
-                    <small>< 1 second average</small>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">🌍 Global Threat Map</div>
-                <div class="chart-container">
-                    <div style="text-align:center;">
-                        <h3>Live Threat Intelligence</h3>
-                        <p>🔴 High Risk: Russia, China, North Korea</p>
-                        <p>🟡 Medium Risk: Iran, Brazil, India</p>
-                        <p>🟢 Low Risk: EU, Canada, Australia</p>
-                        <div style="margin-top:1rem;font-size:0.9rem;color:#94a3b8;">
-                            Last Updated: <span id="lastUpdate"></span>
-                        </div>
-                    </div>
+                    <button class="logout-btn" onclick="handleLogout()">ðŸšª Logout</button>
                 </div>
             </div>
         </div>
-
-        <!-- AI Analysis Tab -->
-        <div id="ai-analysis" class="tab-content">
-            <div class="card">
-                <div class="card-title">🤖 Advanced AI Email Analysis</div>
-                <div class="grid-2">
-                    <div>
-                        <textarea id="aiEmailContent" placeholder="Paste suspicious email content here..." style="width:100%;height:150px;"></textarea>
-                        <input type="file" id="emailFile" accept=".eml,.msg" style="width:100%;">
-                    </div>
-                    <div>
-                        <select id="analysisType" style="width:100%;">
-                            <option value="full">Full AI Analysis</option>
-                            <option value="sentiment">Sentiment Analysis</option>
-                            <option value="linguistic">Linguistic Patterns</option>
-                            <option value="metadata">Metadata Extraction</option>
-                        </select>
-                        <button onclick="runAIAnalysis()" style="width:100%;">🚀 Run AI Analysis</button>
-                    </div>
+        
+        <div class="container">
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="dashboard-number" id="totalUsers">0</div>
+                    <div>Total Users</div>
                 </div>
-                <div id="aiResults"></div>
-            </div>
-        </div>
-
-        <!-- Investigation Tab -->
-        <div id="investigation" class="tab-content">
-            <div class="grid-2">
-                <div class="card">
-                    <div class="card-title">🔍 New Investigation</div>
-                    <div class="grid-2">
-                        <input type="text" id="caseId" placeholder="Case ID (auto-generated)" readonly>
-                        <select id="priority">
-                            <option value="critical">🔴 Critical</option>
-                            <option value="high">🟠 High</option>
-                            <option value="medium">🟡 Medium</option>
-                            <option value="low">🟢 Low</option>
-                        </select>
-                    </div>
-                    <div class="grid-2">
-                        <select id="investigationType">
-                            <option value="email-fraud">📧 Email Fraud</option>
-                            <option value="account-compromise">🔐 Account Compromise</option>
-                            <option value="insider-threat">👤 Insider Threat</option>
-                            <option value="data-breach">💾 Data Breach</option>
-                            <option value="ransomware">🦠 Ransomware</option>
-                        </select>
-                        <input type="text" id="investigatorName" placeholder="Lead Investigator">
-                    </div>
-                    <textarea id="caseDescription" placeholder="Detailed case description..." style="width:100%;height:100px;"></textarea>
-                    <button onclick="createInvestigation()" style="width:100%;">📝 Create Investigation</button>
+                <div class="dashboard-card">
+                    <div class="dashboard-number" id="activeUsers">0</div>
+                    <div>Active Users</div>
                 </div>
-
-                <div class="card">
-                    <div class="card-title">📧 Smart Email Analysis</div>
-                    <textarea id="emailHeaders" placeholder="Email headers..." style="width:100%;height:80px;"></textarea>
-                    <div class="grid-2">
-                        <input type="text" id="senderIP" placeholder="Sender IP Address">
-                        <input type="text" id="senderDomain" placeholder="Sender Domain">
-                    </div>
-                    <button onclick="analyzeEmail()" style="width:100%;">🔬 Analyze Email</button>
-                    <div id="analysisResults"></div>
+                <div class="dashboard-card">
+                    <div class="dashboard-number" id="totalSessions">0</div>
+                    <div>Total Sessions</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Evidence Tab -->
-        <div id="evidence" class="tab-content">
-            <div class="card">
-                <div class="card-title">📁 Digital Evidence Management</div>
-                <div class="grid-3">
-                    <input type="text" id="evidenceType" placeholder="Evidence Type">
-                    <input type="text" id="evidenceSource" placeholder="Source">
-                    <select id="evidencePriority">
-                        <option value="critical">Critical</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
-                <textarea id="evidenceDescription" placeholder="Evidence description..." style="width:100%;height:80px;"></textarea>
-                <input type="file" id="evidenceFile" multiple style="width:100%;">
-                <button onclick="addEvidence()" style="width:100%;margin-bottom:1rem;">📎 Add Evidence</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Type</th>
-                            <th>Source</th>
-                            <th>Priority</th>
-                            <th>Hash</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="evidenceTable">
-                        <tr>
-                            <td>EV-001</td>
-                            <td>Email Headers</td>
-                            <td>Exchange Server</td>
-                            <td><span class="threat-high">Critical</span></td>
-                            <td>SHA256:a1b2c3...</td>
-                            <td>✅ Verified</td>
-                            <td>
-                                <button onclick="viewEvidence('EV-001')" style="padding:0.25rem 0.5rem;margin-right:0.25rem;">View</button>
-                                <button onclick="downloadEvidence('EV-001')" style="padding:0.25rem 0.5rem;">⬇️</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Reports Tab -->
-        <div id="reports" class="tab-content">
-            <div class="card">
-                <div class="card-title">📊 Advanced Reporting System</div>
-                <div class="grid-2">
-                    <div>
-                        <input type="text" id="reportTitle" placeholder="Report Title" style="width:100%;">
-                        <input type="text" id="reportInvestigator" placeholder="Lead Investigator" style="width:100%;">
-                        <select id="reportType" style="width:100%;">
-                            <option value="incident">Incident Report</option>
-                            <option value="forensic">Forensic Analysis</option>
-                            <option value="threat-intel">Threat Intelligence</option>
-                            <option value="compliance">Compliance Report</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="reportFormat" style="width:100%;">
-                            <option value="executive">Executive Summary</option>
-                            <option value="technical">Technical Report</option>
-                            <option value="legal">Legal Documentation</option>
-                        </select>
-                        <input type="date" id="reportDate" style="width:100%;">
-                        <button onclick="generateAdvancedReport()" style="width:100%;">📋 Generate Report</button>
-                    </div>
-                </div>
-                <textarea id="reportSummary" placeholder="Executive summary..." style="width:100%;height:100px;"></textarea>
-                <div id="reportsContainer"></div>
-            </div>
-        </div>
-
-        <!-- ML Insights Tab -->
-        <div id="ml-insights" class="tab-content">
-            <div class="card">
-                <div class="card-title">🧠 Machine Learning Insights</div>
-                <div class="grid-2">
-                    <div class="card" style="background:rgba(124,58,237,0.1);">
-                        <h3>🎯 Predictive Analytics</h3>
-                        <p>Next likely attack vector: <strong>Spear Phishing</strong></p>
-                        <p>Probability: <strong>87%</strong></p>
-                        <p>Estimated timeframe: <strong>24-48 hours</strong></p>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
-                    </div>
-                    <div class="card" style="background:rgba(34,197,94,0.1);">
-                        <h3>🔍 Pattern Recognition</h3>
-                        <p>Similar attack patterns: <strong>23 matches</strong></p>
-                        <p>Success rate: <strong>12%</strong></p>
-                        <p>Recommended action: <strong>Proactive blocking</strong></p>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 92%"></div></div>
-                    </div>
-                </div>
-                
-                <div class="ai-analysis">
-                    <h3>🤖 AI Recommendations</h3>
-                    <ul style="margin-left:1rem;margin-top:0.5rem;">
-                        <li>Implement advanced email filtering for domains: suspicious-bank.com, fake-paypal.net</li>
-                        <li>Increase monitoring for accounts: finance@company.com, ceo@company.com</li>
-                        <li>Deploy honeypot emails to detect reconnaissance activities</li>
-                        <li>Update threat intelligence feeds with new IOCs</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Public Report Tab -->
-        <div id="public-report" class="tab-content">
-            <div class="card">
-                <div class="card-title">🚨 Report Cyber Crime to Cyber Police</div>
-                <p style="margin-bottom: 2rem; color: #94a3b8;">Citizens can report cyber crimes, fraud, and suspicious activities. All reports are forwarded to the Cyber Police for investigation.</p>
-                
-                <div class="grid-2">
-                    <div>
-                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">👤 Personal Information</h4>
-                        <input type="text" id="reporterName" placeholder="Full Name *" style="width:100%;">
-                        <input type="email" id="reporterEmail" placeholder="Email Address *" style="width:100%;">
-                        <input type="tel" id="reporterPhone" placeholder="Phone Number" style="width:100%;">
-                        <input type="text" id="reporterAddress" placeholder="Address (Optional)" style="width:100%;">
-                    </div>
-                    <div>
-                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">🔍 Crime Details</h4>
-                        <select id="crimeType" style="width:100%;">
-                            <option value="">Select Crime Type *</option>
-                            <option value="phishing">📧 Phishing/Email Fraud</option>
-                            <option value="financial-fraud">💳 Financial Fraud</option>
-                            <option value="identity-theft">🆔 Identity Theft</option>
-                            <option value="cyberbullying">😡 Cyberbullying/Harassment</option>
-                            <option value="ransomware">🦠 Ransomware/Malware</option>
-                            <option value="social-media">📱 Social Media Fraud</option>
-                            <option value="online-scam">🎯 Online Scam</option>
-                            <option value="data-breach">💾 Data Breach</option>
-                            <option value="other">❓ Other</option>
-                        </select>
-                        <input type="date" id="incidentDate" style="width:100%;">
-                        <input type="text" id="financialLoss" placeholder="Financial Loss Amount (if any)" style="width:100%;">
-                    </div>
-                </div>
-                
-                <h4 style="color: #ff9f0a; margin: 1.5rem 0 1rem 0;">📝 Incident Description</h4>
-                <textarea id="incidentDescription" placeholder="Describe the incident in detail - What happened? When? How did you discover it? Any suspicious emails, websites, or phone calls?" style="width:100%;height:120px;"></textarea>
-                
-                <h4 style="color: #ff9f0a; margin: 1.5rem 0 1rem 0;">🔗 Suspicious Links/Evidence</h4>
-                <textarea id="suspiciousLinks" placeholder="Paste any suspicious links, email addresses, phone numbers, or other evidence here" style="width:100%;height:80px;"></textarea>
-                
-                <div class="grid-2" style="margin-top: 1.5rem;">
-                    <div>
-                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">📎 Upload Evidence</h4>
-                        <input type="file" id="evidenceFiles" multiple accept=".jpg,.jpeg,.png,.pdf,.txt,.eml,.msg" style="width:100%;">
-                        <small style="color: #94a3b8;">Screenshots, emails, documents (Max 10MB each)</small>
-                    </div>
-                    <div>
-                        <h4 style="color: #ff9f0a; margin-bottom: 1rem;">🚨 Priority Level</h4>
-                        <select id="reportPriority" style="width:100%;">
-                            <option value="low">🟢 Low - Minor incident</option>
-                            <option value="medium">🟡 Medium - Moderate loss/impact</option>
-                            <option value="high">🟠 High - Significant loss/impact</option>
-                            <option value="critical">🔴 Critical - Ongoing threat/major loss</option>
-                        </select>
-                        <div style="margin-top: 1rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; color: #94a3b8;">
-                                <input type="checkbox" id="consentCheck" style="width: auto; margin: 0;">
-                                I consent to share this information with Cyber Police for investigation
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 2rem; text-align: center;">
-                    <button onclick="submitPublicReport()" style="width: 300px; font-size: 1.1rem; padding: 1.2rem;">🚨 Submit Report to Cyber Police</button>
-                </div>
-                
-                <div class="alert alert-warning" style="margin-top: 2rem;">
-                    <strong>⚠️ Important:</strong> For immediate emergencies, call your local emergency number. This system is for non-emergency cyber crime reporting. You will receive a complaint number for tracking your report.
+                <div class="dashboard-card">
+                    <div class="dashboard-number" id="securityAlerts">0</div>
+                    <div>Security Alerts</div>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-title">📋 Recent Public Reports</div>
-                <div id="publicReportsContainer">
-                    <div class="alert alert-success">
-                        <strong>Report #CR-2024-001</strong> - Phishing Email Fraud<br>
-                        <small>Status: Under Investigation | Submitted: 2 hours ago</small>
-                    </div>
-                    <div class="alert alert-warning">
-                        <strong>Report #CR-2024-002</strong> - Financial Fraud<br>
-                        <small>Status: Evidence Collection | Submitted: 1 day ago</small>
-                    </div>
-                </div>
+            <div class="dashboard-card">
+                <h3>Welcome to Cyber Command Grid</h3>
+                <p>Threat telemetry is online. User activity is monitored, scored, and analyzed in real time.</p>
+                <p><strong>Last Login:</strong> <span id="lastLogin"></span></p>
+                <p><strong>Session ID:</strong> <span id="sessionId"></span></p>
             </div>
         </div>
     </div>
 
     <script>
-        let caseCounter = 1000;
-
-        // Create floating particles
-        function createParticles() {
-            const particlesContainer = document.querySelector('.floating-particles');
-            const particleCount = 50;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                particlesContainer.appendChild(particle);
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzjAQtHsgUM0XXzEhr-yPFOLE7a8ujZks",
+            authDomain: "cyber-a0318.firebaseapp.com",
+            projectId: "cyber-a0318",
+            storageBucket: "cyber-a0318.firebasestorage.app",
+            messagingSenderId: "661792405043",
+            appId: "1:661792405043:web:965dcc3a4c17d808a7d546",
+            measurementId: "G-HGDBFWLLNY"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+        
+        // Google Analytics
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-HGDBFWLLNY');
+        
+        let currentUser = null;
+        let generatedOTP = null;
+        let otpEmail = null;
+        
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (user && user.emailVerified) {
+                showMainApp(user);
+                trackUserActivity('login', user);
+            } else {
+                showAuthScreen();
             }
-        }
-
-        // Auth functions
+        });
+        
         function showAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
             
             event.target.classList.add('active');
             document.getElementById(tab + '-form').classList.add('active');
+            clearMessages();
         }
         
-        function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!email || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-            
-            // Demo login
-            if ((email === 'admin@cyber.com' && password === 'admin123') || (email && password)) {
-                // Update user info in header
-                const name = email === 'admin@cyber.com' ? 'Admin User' : email.split('@')[0];
-                document.getElementById('userName').textContent = name;
-                document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-                
-                alert('Login successful! Welcome to CyberForensics Pro');
-                document.getElementById('auth-screen').style.display = 'none';
-                initializeApp();
-            } else {
-                alert('Invalid credentials');
-            }
+        function showMessage(message, type = 'error') {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="${type}-message">${message}</div>`;
         }
         
-        function handleSignup() {
+        function clearMessages() {
+            document.getElementById('message-container').innerHTML = '';
+        }
+        
+        async function handleSignup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const org = document.getElementById('signupOrg').value;
             
             if (!name || !email || !password || !org) {
-                alert('Please fill all fields');
+                showMessage('Please fill all fields');
                 return;
             }
             
-            // Update user info in header
-            document.getElementById('userName').textContent = name;
-            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-            
-            alert('Account created successfully! Welcome aboard!');
-            document.getElementById('auth-screen').style.display = 'none';
-            initializeApp();
-        }
-        
-        function initializeApp() {
-            // Show user account in header
-            document.getElementById('userAccount').style.display = 'flex';
-            loadDashboard();
-            createParticles();
-        }
-        
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                document.getElementById('userAccount').style.display = 'none';
-                document.getElementById('auth-screen').style.display = 'flex';
-                // Clear form fields
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
-            }
-        }
-
-        function showTab(tabName) {
-            // Add fade out animation to current tab
-            const currentTab = document.querySelector('.tab-content.active');
-            if (currentTab) {
-                currentTab.style.opacity = '0';
-                currentTab.style.transform = 'translateY(20px)';
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters');
+                return;
             }
             
-            setTimeout(() => {
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.remove('active');
-                    tab.style.opacity = '';
-                    tab.style.transform = '';
+            const btn = document.getElementById('signupBtn');
+            btn.innerHTML = '<span class="loading"></span> Creating Account...';
+            btn.disabled = true;
+            
+            try {
+                // Create user account
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update profile
+                await user.updateProfile({
+                    displayName: name
                 });
-                document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
                 
-                document.getElementById(tabName).classList.add('active');
-                event.target.classList.add('active');
-                
-                // Add fade in animation to new tab
-                const newTab = document.getElementById(tabName);
-                newTab.style.opacity = '0';
-                newTab.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    newTab.style.transition = 'all 0.5s ease';
-                    newTab.style.opacity = '1';
-                    newTab.style.transform = 'translateY(0)';
-                }, 50);
-            }, 200);
-        }
-
-        function loadDashboard() {
-            // Simulate real-time data
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
-            document.getElementById('caseId').value = `FR-2024-${++caseCounter}`;
-            document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
-        }
-
-        function runAIAnalysis() {
-            const content = document.getElementById('aiEmailContent').value;
-            const type = document.getElementById('analysisType').value;
-            
-            if (!content) {
-                alert('Please provide email content for analysis');
-                return;
-            }
-            
-            const results = document.getElementById('aiResults');
-            results.innerHTML = '<div class="ai-analysis">🤖 <span class="loading-spinner"></span> AI Analysis in progress...</div>';
-            
-            setTimeout(() => {
-                const aiScore = Math.floor(Math.random() * 30) + 70;
-                const threatLevel = aiScore > 85 ? 'HIGH' : aiScore > 70 ? 'MEDIUM' : 'LOW';
-                const confidence = Math.floor(Math.random() * 20) + 80;
-                
-                results.innerHTML = `
-                    <div class="ai-analysis" style="animation: slideInUp 0.6s ease-out;">
-                        <h3>🎯 AI Analysis Results</h3>
-                        <div class="progress-bar" style="margin: 1rem 0;">
-                            <div class="progress-fill" style="width: ${aiScore}%"></div>
-                        </div>
-                        <p><strong>Threat Score:</strong> <span class="threat-${threatLevel.toLowerCase()}">${aiScore}/100</span></p>
-                        <p><strong>Threat Level:</strong> <span class="threat-${threatLevel.toLowerCase()}">${threatLevel}</span></p>
-                        <p><strong>Confidence:</strong> ${confidence}%</p>
-                        <p><strong>Key Indicators:</strong></p>
-                        <ul style="margin-left:1rem;">
-                            <li>🚨 Suspicious sender reputation (IP: 185.220.101.42)</li>
-                            <li>⚠️ Urgency keywords detected: "urgent", "immediate action"</li>
-                            <li>🔍 Grammatical inconsistencies suggesting non-native speaker</li>
-                            <li>🎭 Domain spoofing attempt detected</li>
-                        </ul>
-                        <p><strong>Recommendation:</strong> <span class="threat-${aiScore > 85 ? 'critical' : 'high'}">QUARANTINE IMMEDIATELY</span></p>
-                    </div>
-                `;
-            }, 2000);
-        }
-
-        function analyzeEmail() {
-            const headers = document.getElementById('emailHeaders').value;
-            const ip = document.getElementById('senderIP').value;
-            const domain = document.getElementById('senderDomain').value;
-            
-            if (!headers && !ip && !domain) {
-                alert('Please provide email headers, IP, or domain');
-                return;
-            }
-            
-            const riskScore = Math.floor(Math.random() * 40) + 60;
-            const geoLocation = ['Russia', 'China', 'Nigeria', 'Romania', 'Brazil'][Math.floor(Math.random() * 5)];
-            const threatLevel = riskScore > 85 ? 'high' : riskScore > 70 ? 'medium' : 'low';
-            
-            document.getElementById('analysisResults').innerHTML = `
-                <div class="alert alert-${threatLevel === 'high' ? 'danger' : 'warning'}" style="margin-top:1rem;">
-                    <h4>🔍 Advanced Analysis Results</h4>
-                    <p><strong>Threat Level:</strong> <span class="threat-${threatLevel}">${threatLevel.toUpperCase()}</span></p>
-                    <p><strong>Risk Score:</strong> ${riskScore}/100</p>
-                    <p><strong>Geo-Location:</strong> ${geoLocation}</p>
-                    <p><strong>Domain Age:</strong> ${Math.floor(Math.random() * 30)} days (Suspicious)</p>
-                    <p><strong>AI Recommendations:</strong></p>
-                    <ul style="margin-left:1rem;">
-                        <li>Block sender IP address immediately</li>
-                        <li>Add domain to threat intelligence database</li>
-                        <li>Monitor similar patterns across organization</li>
-                        <li>Implement additional email filtering rules</li>
-                    </ul>
-                </div>
-            `;
-        }
-
-        function createInvestigation() {
-            const caseId = document.getElementById('caseId').value;
-            const priority = document.getElementById('priority').value;
-            const type = document.getElementById('investigationType').value;
-            const investigator = document.getElementById('investigatorName').value;
-            const description = document.getElementById('caseDescription').value;
-            
-            if (!investigator || !description) {
-                alert('Please fill all required fields');
-                return;
-            }
-            
-            alert(`✅ Investigation ${caseId} created successfully!\nPriority: ${priority.toUpperCase()}\nType: ${type}\nAssigned to: ${investigator}`);
-            
-            // Clear form and generate new case ID
-            document.getElementById('investigatorName').value = '';
-            document.getElementById('caseDescription').value = '';
-            document.getElementById('caseId').value = `FR-2024-${++caseCounter}`;
-            
-            // Update dashboard counter
-            const activeInvestigations = document.getElementById('activeInvestigations');
-            activeInvestigations.textContent = parseInt(activeInvestigations.textContent) + 1;
-        }
-
-        function addEvidence() {
-            const type = document.getElementById('evidenceType').value;
-            const source = document.getElementById('evidenceSource').value;
-            const priority = document.getElementById('evidencePriority').value;
-            const description = document.getElementById('evidenceDescription').value;
-            
-            if (!type || !source || !description) {
-                alert('Please fill all required fields');
-                return;
-            }
-            
-            const evidenceId = `EV-${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
-            const hash = `SHA256:${Math.random().toString(36).substring(2, 8)}...`;
-            
-            const table = document.getElementById('evidenceTable');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>${evidenceId}</td>
-                <td>${type}</td>
-                <td>${source}</td>
-                <td><span class="threat-${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span></td>
-                <td>${hash}</td>
-                <td>⏳ Processing</td>
-                <td>
-                    <button onclick="viewEvidence('${evidenceId}')" style="padding:0.25rem 0.5rem;margin-right:0.25rem;">View</button>
-                    <button onclick="downloadEvidence('${evidenceId}')" style="padding:0.25rem 0.5rem;">⬇️</button>
-                </td>
-            `;
-            table.appendChild(newRow);
-            
-            // Update status to verified after a delay
-            setTimeout(() => {
-                const statusCell = newRow.cells[5];
-                statusCell.innerHTML = '✅ Verified';
-                statusCell.style.color = '#30d158';
-            }, 2000);
-            
-            // Clear form
-            document.getElementById('evidenceType').value = '';
-            document.getElementById('evidenceSource').value = '';
-            document.getElementById('evidenceDescription').value = '';
-            
-            // Update dashboard counter
-            const evidenceItems = document.getElementById('evidenceItems');
-            evidenceItems.textContent = parseInt(evidenceItems.textContent) + 1;
-        }
-
-        function generateAdvancedReport() {
-            const title = document.getElementById('reportTitle').value;
-            const investigator = document.getElementById('reportInvestigator').value;
-            const type = document.getElementById('reportType').value;
-            const format = document.getElementById('reportFormat').value;
-            const summary = document.getElementById('reportSummary').value;
-            const date = document.getElementById('reportDate').value;
-            
-            if (!title || !investigator || !summary) {
-                alert('Please fill all required fields');
-                return;
-            }
-            
-            const reportId = `RPT-${Date.now()}`;
-            const container = document.getElementById('reportsContainer');
-            
-            const newReport = document.createElement('div');
-            newReport.className = 'card';
-            newReport.style.cssText = 'margin-top:1rem;background:rgba(15,23,42,0.8);animation:slideInUp 0.6s ease-out;';
-            newReport.innerHTML = `
-                <h4>📋 ${title}</h4>
-                <div class="grid-2" style="margin:1rem 0;">
-                    <div>
-                        <p><strong>Report ID:</strong> ${reportId}</p>
-                        <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-                        <p><strong>Format:</strong> ${format.charAt(0).toUpperCase() + format.slice(1)}</p>
-                    </div>
-                    <div>
-                        <p><strong>Investigator:</strong> ${investigator}</p>
-                        <p><strong>Date:</strong> ${date}</p>
-                        <p><strong>Status:</strong> <span class="threat-low">Generated</span></p>
-                    </div>
-                </div>
-                <p><strong>Summary:</strong> ${summary}</p>
-                <div style="margin-top:1rem;">
-                    <button onclick="downloadReport('${reportId}', 'pdf')" style="margin-right:0.5rem;">📥 Download PDF</button>
-                    <button onclick="downloadReport('${reportId}', 'json')" style="margin-right:0.5rem;">📊 Download JSON</button>
-                    <button onclick="emailReport('${reportId}')" style="margin-right:0.5rem;">📧 Email Report</button>
-                    <button onclick="shareReport('${reportId}')">🔗 Share Link</button>
-                </div>
-            `;
-            
-            container.appendChild(newReport);
-            
-            // Clear form
-            document.getElementById('reportTitle').value = '';
-            document.getElementById('reportInvestigator').value = '';
-            document.getElementById('reportSummary').value = '';
-        }
-
-        // Utility functions
-        function viewEvidence(evidenceId) {
-            alert(`Evidence ID: ${evidenceId}\nType: Email Headers\nStatus: Verified\nThreat Score: 89/100`);
-        }
-
-        function downloadEvidence(evidenceId) {
-            const evidence = {
-                id: evidenceId,
-                type: 'Email Headers',
-                source: 'Exchange Server',
-                hash: 'SHA256:a1b2c3d4e5f6...',
-                timestamp: new Date().toISOString(),
-                content: 'From: suspicious@fake-bank.com\nTo: victim@company.com\nSubject: URGENT ACTION REQUIRED',
-                analysis: {
-                    threat_score: 89,
-                    indicators: ['Suspicious IP', 'Domain spoofing'],
-                    recommendation: 'QUARANTINE'
-                }
-            };
-            downloadFile(`evidence_${evidenceId}.json`, JSON.stringify(evidence, null, 2));
-        }
-
-        function downloadReport(reportId, format) {
-            const reportData = {
-                id: reportId,
-                title: 'CyberForensics Investigation Report',
-                investigator: document.getElementById('userName').textContent || 'Security Team',
-                date: new Date().toLocaleDateString(),
-                summary: 'Comprehensive cybersecurity investigation report with AI-powered threat analysis',
-                statistics: {
-                    active_cases: document.getElementById('activeInvestigations').textContent,
-                    evidence_items: document.getElementById('evidenceItems').textContent,
-                    threats_detected: document.getElementById('threatsDetected').textContent,
-                    cases_resolved: document.getElementById('casesResolved').textContent
-                },
-                findings: [
-                    'Advanced Persistent Threat detected - CEO impersonation attack',
-                    'Suspicious wire transfer request from compromised account',
-                    'Phishing campaign blocked - 1,247 emails quarantined'
-                ],
-                recommendations: [
-                    'Implement advanced email filtering',
-                    'Increase monitoring for high-risk accounts',
-                    'Deploy honeypot emails for threat detection',
-                    'Update threat intelligence feeds'
-                ]
-            };
-            
-            if (format === 'pdf') {
-                const pdfContent = `CYBERFORENSICS PRO - INVESTIGATION REPORT\n\n` +
-                    `Report ID: ${reportData.id}\n` +
-                    `Title: ${reportData.title}\n` +
-                    `Investigator: ${reportData.investigator}\n` +
-                    `Date: ${reportData.date}\n\n` +
-                    `EXECUTIVE SUMMARY:\n${reportData.summary}\n\n` +
-                    `STATISTICS:\n` +
-                    `- Active Cases: ${reportData.statistics.active_cases}\n` +
-                    `- Evidence Items: ${reportData.statistics.evidence_items}\n` +
-                    `- Threats Detected: ${reportData.statistics.threats_detected}\n` +
-                    `- Cases Resolved: ${reportData.statistics.cases_resolved}\n\n` +
-                    `KEY FINDINGS:\n${reportData.findings.map(f => `- ${f}`).join('\n')}\n\n` +
-                    `RECOMMENDATIONS:\n${reportData.recommendations.map(r => `- ${r}`).join('\n')}\n\n` +
-                    `Generated by CyberForensics Pro AI Platform`;
-                downloadFile(`report_${reportId}.txt`, pdfContent);
-            } else if (format === 'json') {
-                downloadFile(`report_${reportId}.json`, JSON.stringify(reportData, null, 2));
-            }
-        }
-        
-        function downloadFile(filename, content) {
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        function emailReport(reportId) {
-            const email = prompt('Enter email address:');
-            if (email) {
-                alert(`Report ${reportId} sent to ${email}`);
-            }
-        }
-
-        function shareReport(reportId) {
-            const shareUrl = `https://cyberforensics.pro/reports/${reportId}`;
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    alert(`Share link copied: ${shareUrl}`);
-                });
-            } else {
-                prompt('Copy this link:', shareUrl);
-            }
-        }
-
-        // Real-time updates simulation
-        setInterval(() => {
-            const elements = document.querySelectorAll('.real-time');
-            elements.forEach(el => {
-                const current = parseInt(el.textContent);
-                const change = Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0;
-                if (change !== 0) {
-                    const newValue = Math.max(0, current + change);
-                    
-                    // Animate number change
-                    el.style.transform = 'scale(1.1)';
-                    el.style.color = change > 0 ? '#30d158' : '#ff453a';
-                    
-                    setTimeout(() => {
-                        el.textContent = newValue;
-                        el.style.transform = 'scale(1)';
-                        el.style.color = '';
-                    }, 200);
-                }
-            });
-            
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
-        }, 12000);
-
-        function submitPublicReport() {
-            const name = document.getElementById('reporterName').value;
-            const email = document.getElementById('reporterEmail').value;
-            const crimeType = document.getElementById('crimeType').value;
-            const description = document.getElementById('incidentDescription').value;
-            const consent = document.getElementById('consentCheck').checked;
-            
-            if (!name || !email || !crimeType || !description) {
-                alert('Please fill all required fields marked with *');
-                return;
-            }
-            
-            if (!consent) {
-                alert('Please provide consent to share information with Cyber Police');
-                return;
-            }
-            
-            const reportId = `CR-2024-${String(Math.floor(Math.random() * 9999) + 1).padStart(3, '0')}`;
-            const reportData = {
-                id: reportId,
-                reporter: {
+                // Save user data to Firestore
+                await db.collection('users').doc(user.uid).set({
                     name: name,
                     email: email,
-                    phone: document.getElementById('reporterPhone').value,
-                    address: document.getElementById('reporterAddress').value
-                },
-                incident: {
-                    type: crimeType,
-                    date: document.getElementById('incidentDate').value,
-                    description: description,
-                    financial_loss: document.getElementById('financialLoss').value,
-                    suspicious_links: document.getElementById('suspiciousLinks').value,
-                    priority: document.getElementById('reportPriority').value
-                },
-                submission: {
-                    timestamp: new Date().toISOString(),
-                    status: 'Submitted to Cyber Police',
-                    tracking_number: reportId
-                }
-            };
-            
-            // Add to recent reports
-            const container = document.getElementById('publicReportsContainer');
-            const newReport = document.createElement('div');
-            newReport.className = 'alert alert-success';
-            newReport.style.animation = 'slideInLeft 0.5s ease-out';
-            newReport.innerHTML = `
-                <strong>Report #${reportId}</strong> - ${crimeType.charAt(0).toUpperCase() + crimeType.slice(1).replace('-', ' ')}<br>
-                <small>Status: Submitted to Cyber Police | Submitted: Just now</small>
-            `;
-            container.insertBefore(newReport, container.firstChild);
-            
-            // Download report copy
-            downloadFile(`cyber_crime_report_${reportId}.json`, JSON.stringify(reportData, null, 2));
-            
-            alert(`✅ Report submitted successfully!\n\nComplaint Number: ${reportId}\n\nYour report has been forwarded to the Cyber Police. You will be contacted within 24-48 hours. A copy has been downloaded to your device for your records.`);
-            
-            // Clear form
-            document.getElementById('reporterName').value = '';
-            document.getElementById('reporterEmail').value = '';
-            document.getElementById('reporterPhone').value = '';
-            document.getElementById('reporterAddress').value = '';
-            document.getElementById('crimeType').value = '';
-            document.getElementById('incidentDate').value = '';
-            document.getElementById('financialLoss').value = '';
-            document.getElementById('incidentDescription').value = '';
-            document.getElementById('suspiciousLinks').value = '';
-            document.getElementById('consentCheck').checked = false;
+                    organization: org,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                });
+                
+                // Generate and send OTP
+                await sendOTPEmail(email, name);
+                
+                showMessage('Account created! Please verify your email.', 'success');
+                showOTPForm(email);
+                
+                // Track signup event
+                gtag('event', 'sign_up', {
+                    method: 'email'
+                });
+                
+            } catch (error) {
+                showMessage(error.message);
+            } finally {
+                btn.innerHTML = 'ðŸš€ Create Account';
+                btn.disabled = false;
+            }
         }
-
-        // Enhanced initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            // Show auth screen after startup animation
-            setTimeout(() => {
-                document.getElementById('startup-screen').style.display = 'none';
-                document.getElementById('auth-screen').style.display = 'flex';
-            }, 4000);
+        
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             
-            // Set today's date as default
-            document.getElementById('incidentDate').value = new Date().toISOString().split('T')[0];
+            if (!email || !password) {
+                showMessage('Please fill all fields');
+                return;
+            }
+            
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = '<span class="loading"></span> Logging in...';
+            btn.disabled = true;
+            
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                if (!user.emailVerified) {
+                    await sendOTPEmail(email, user.displayName || 'User');
+                    showOTPForm(email);
+                    showMessage('Please verify your email to continue.', 'success');
+                } else {
+                    // Update last login
+                    await db.collection('users').doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    showMessage('Login successful!', 'success');
+                    
+                    // Track login event
+                    gtag('event', 'login', {
+                        method: 'email'
+                    });
+                }
+                
+            } catch (error) {
+                showMessage(error.message);
+            } finally {
+                btn.innerHTML = 'ðŸ” Secure Login';
+                btn.disabled = false;
+            }
+        }
+        
+        async function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                // Save user data to Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    provider: 'google',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
+                }, { merge: true });
+                
+                showMessage('Google login successful!', 'success');
+                
+                // Track login event
+                gtag('event', 'login', {
+                    method: 'google'
+                });
+                
+            } catch (error) {
+                showMessage(error.message);
+            }
+        }
+        
+        async function sendOTPEmail(email, name) {
+            // Generate 6-digit OTP
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            otpEmail = email;
+            
+            // In a real app, you would send this via your backend
+            // For demo, we'll simulate email sending
+            console.log(`OTP for ${email}: ${generatedOTP}`);
+            
+            // Store OTP in localStorage for demo (in production, use secure backend)
+            localStorage.setItem('otp_' + email, generatedOTP);
+            localStorage.setItem('otp_time_' + email, Date.now().toString());
+            
+            // Simulate email sending delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            return true;
+        }
+        
+        function showOTPForm(email) {
+            document.querySelectorAll('.auth-form').forEach(f => f.style.display = 'none');
+            document.getElementById('otp-container').style.display = 'block';
+            document.querySelector('.auth-tabs').style.display = 'none';
+        }
+        
+        function moveToNext(current, index) {
+            if (current.value.length === 1 && index < 5) {
+                document.querySelectorAll('.otp-digit')[index + 1].focus();
+            }
+        }
+        
+        async function verifyOTP() {
+            const otpDigits = document.querySelectorAll('.otp-digit');
+            const enteredOTP = Array.from(otpDigits).map(input => input.value).join('');
+            
+            if (enteredOTP.length !== 6) {
+                showMessage('Please enter complete 6-digit code');
+                return;
+            }
+            
+            const btn = document.getElementById('verifyBtn');
+            btn.innerHTML = '<span class="loading"></span> Verifying...';
+            btn.disabled = true;
+            
+            try {
+                const storedOTP = localStorage.getItem('otp_' + otpEmail);
+                const otpTime = localStorage.getItem('otp_time_' + otpEmail);
+                
+                // Check if OTP is expired (5 minutes)
+                if (Date.now() - parseInt(otpTime) > 300000) {
+                    showMessage('OTP expired. Please request a new one.');
+                    return;
+                }
+                
+                if (enteredOTP === storedOTP) {
+                    // Verify email in Firebase
+                    const user = auth.currentUser;
+                    if (user) {
+                        // In a real app, you'd verify on the backend
+                        // For demo, we'll mark as verified
+                        await user.reload();
+                        
+                        // Clean up OTP
+                        localStorage.removeItem('otp_' + otpEmail);
+                        localStorage.removeItem('otp_time_' + otpEmail);
+                        
+                        showMessage('Email verified successfully!', 'success');
+                        
+                        // Track verification event
+                        gtag('event', 'email_verified');
+                        
+                        setTimeout(() => {
+                            showMainApp(user);
+                        }, 1500);
+                    }
+                } else {
+                    showMessage('Invalid OTP. Please try again.');
+                }
+                
+            } catch (error) {
+                showMessage(error.message);
+            } finally {
+                btn.innerHTML = 'âœ… Verify Code';
+                btn.disabled = false;
+            }
+        }
+        
+        async function resendOTP() {
+            if (!otpEmail) return;
+            
+            const btn = document.getElementById('resendBtn');
+            btn.innerHTML = '<span class="loading"></span> Sending...';
+            btn.disabled = true;
+            
+            try {
+                await sendOTPEmail(otpEmail, 'User');
+                showMessage('New OTP sent to your email!', 'success');
+                
+                // Clear OTP inputs
+                document.querySelectorAll('.otp-digit').forEach(input => input.value = '');
+                document.querySelectorAll('.otp-digit')[0].focus();
+                
+            } catch (error) {
+                showMessage('Failed to send OTP. Please try again.');
+            } finally {
+                btn.innerHTML = 'Resend Code';
+                btn.disabled = false;
+            }
+        }
+        
+        function showAuthScreen() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+        }
+        
+        async function showMainApp(user) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            
+            // Update user info
+            document.getElementById('userName').textContent = user.displayName || 'User';
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userAvatar').textContent = (user.displayName || 'U').charAt(0).toUpperCase();
+            document.getElementById('lastLogin').textContent = new Date().toLocaleString();
+            document.getElementById('sessionId').textContent = user.uid.substring(0, 8);
+            
+            // Load analytics data
+            await loadAnalytics();
+        }
+        
+        async function loadAnalytics() {
+            try {
+                // Get user count
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+                
+                // Get active users (logged in within last 24 hours)
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                const activeUsersSnapshot = await db.collection('users')
+                    .where('lastLogin', '>=', yesterday)
+                    .get();
+                document.getElementById('activeUsers').textContent = activeUsersSnapshot.size;
+                
+                // Simulate other metrics
+                document.getElementById('totalSessions').textContent = Math.floor(Math.random() * 1000) + 500;
+                document.getElementById('securityAlerts').textContent = Math.floor(Math.random() * 50) + 10;
+                
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+        
+        async function trackUserActivity(action, user) {
+            try {
+                await db.collection('user_activities').add({
+                    userId: user.uid,
+                    email: user.email,
+                    action: action,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    userAgent: navigator.userAgent,
+                    ip: 'xxx.xxx.xxx.xxx' // In production, get real IP
+                });
+                
+                // Track in Google Analytics
+                gtag('event', action, {
+                    user_id: user.uid
+                });
+                
+            } catch (error) {
+                console.error('Error tracking activity:', error);
+            }
+        }
+        
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                
+                // Track logout event
+                gtag('event', 'logout');
+                
+                showMessage('Logged out successfully!', 'success');
+                
+            } catch (error) {
+                showMessage(error.message);
+            }
+        }
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-focus first input
+            document.getElementById('loginEmail').focus();
         });
     </script>
 </body>
 </html>
+
+

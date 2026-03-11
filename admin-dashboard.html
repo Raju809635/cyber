@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CyberForensics Pro</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f0f, #1a0a0a, #2d0a1f);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 69, 58, 0.3);
+            backdrop-filter: blur(20px);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff453a, #ff9f0a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 15, 25, 0.8);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 69, 58, 0.2);
+            backdrop-filter: blur(20px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff453a, #30d158);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            background: rgba(30, 15, 25, 0.8);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 69, 58, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #ff9f0a;
+        }
+        
+        .users-table {
+            background: rgba(30, 15, 25, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 69, 58, 0.2);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: rgba(15, 15, 15, 0.8);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 69, 58, 0.2);
+        }
+        
+        .table-title {
+            font-size: 1.2rem;
+            color: #ff9f0a;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 69, 58, 0.1);
+        }
+        
+        th {
+            background: rgba(15, 15, 15, 0.5);
+            color: #ff9f0a;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            color: #22c55e;
+            font-weight: 600;
+        }
+        
+        .status-inactive {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #94a3b8;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #ff453a, #ff9f0a);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 69, 58, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🛡️ CyberForensics Pro - Admin Dashboard</div>
+            <div>
+                <span id="adminName">Admin</span>
+                <button onclick="handleLogout()" style="margin-left: 1rem; background: rgba(255, 69, 58, 0.2); border: 1px solid rgba(255, 69, 58, 0.3); color: #ff6b6b; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <button class="refresh-btn" onclick="loadDashboardData()">🔄 Refresh Data</button>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeUsers">0</div>
+                <div class="stat-label">Active Users (24h)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSessions">0</div>
+                <div class="stat-label">Total Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalEvents">0</div>
+                <div class="stat-label">Total Events</div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="chart-container">
+            <div class="chart-title">User Registrations (Last 7 Days)</div>
+            <canvas id="registrationChart" width="400" height="200"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">User Activity (Last 24 Hours)</div>
+            <canvas id="activityChart" width="400" height="200"></canvas>
+        </div>
+        
+        <!-- Users Table -->
+        <div class="users-table">
+            <div class="table-header">
+                <div class="table-title">Recent Users</div>
+            </div>
+            <div id="usersTableContainer">
+                <div class="loading">Loading users...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzjAQtHsgUM0XXzEhr-yPFOLE7a8ujZks",
+            authDomain: "cyber-a0318.firebaseapp.com",
+            projectId: "cyber-a0318",
+            storageBucket: "cyber-a0318.firebasestorage.app",
+            messagingSenderId: "661792405043",
+            appId: "1:661792405043:web:965dcc3a4c17d808a7d546",
+            measurementId: "G-HGDBFWLLNY"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+        
+        let registrationChart = null;
+        let activityChart = null;
+        
+        // Check admin authentication
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                checkAdminAccess(user);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+        
+        async function checkAdminAccess(user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data();
+                
+                if (userData && userData.role === 'admin') {
+                    document.getElementById('adminName').textContent = userData.name || 'Admin';
+                    loadDashboardData();
+                } else {
+                    alert('Access denied. Admin privileges required.');
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+                window.location.href = 'index.html';
+            }
+        }
+        
+        async function loadDashboardData() {
+            try {
+                // Load statistics
+                await loadStatistics();
+                
+                // Load charts
+                await loadRegistrationChart();
+                await loadActivityChart();
+                
+                // Load users table
+                await loadUsersTable();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        async function loadStatistics() {
+            try {
+                // Total users
+                const usersSnapshot = await db.collection('users').get();
+                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+                
+                // Active users (last 24 hours)
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                
+                const activeUsersSnapshot = await db.collection('users')
+                    .where('lastLogin', '>=', yesterday)
+                    .get();
+                document.getElementById('activeUsers').textContent = activeUsersSnapshot.size;
+                
+                // Total sessions
+                const sessionsSnapshot = await db.collection('analytics_events')
+                    .where('name', '==', 'session_start')
+                    .get();
+                document.getElementById('totalSessions').textContent = sessionsSnapshot.size;
+                
+                // Total events
+                const eventsSnapshot = await db.collection('analytics_events').get();
+                document.getElementById('totalEvents').textContent = eventsSnapshot.size;
+                
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+        
+        async function loadRegistrationChart() {
+            try {
+                const last7Days = [];
+                const registrationCounts = [];
+                
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    last7Days.push(dateStr);
+                    
+                    const startOfDay = new Date(date);
+                    startOfDay.setHours(0, 0, 0, 0);
+                    const endOfDay = new Date(date);
+                    endOfDay.setHours(23, 59, 59, 999);
+                    
+                    const snapshot = await db.collection('users')
+                        .where('createdAt', '>=', startOfDay)
+                        .where('createdAt', '<=', endOfDay)
+                        .get();
+                    
+                    registrationCounts.push(snapshot.size);
+                }
+                
+                const ctx = document.getElementById('registrationChart').getContext('2d');
+                
+                if (registrationChart) {
+                    registrationChart.destroy();
+                }
+                
+                registrationChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: last7Days,
+                        datasets: [{
+                            label: 'New Registrations',
+                            data: registrationCounts,
+                            borderColor: '#ff9f0a',
+                            backgroundColor: 'rgba(255, 159, 10, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#e2e8f0'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 69, 58, 0.1)'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 69, 58, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading registration chart:', error);
+            }
+        }
+        
+        async function loadActivityChart() {
+            try {
+                const last24Hours = [];
+                const activityCounts = [];
+                
+                for (let i = 23; i >= 0; i--) {
+                    const hour = new Date();
+                    hour.setHours(hour.getHours() - i, 0, 0, 0);
+                    const hourStr = hour.getHours().toString().padStart(2, '0') + ':00';
+                    last24Hours.push(hourStr);
+                    
+                    const startOfHour = new Date(hour);
+                    const endOfHour = new Date(hour);
+                    endOfHour.setHours(endOfHour.getHours() + 1);
+                    
+                    const snapshot = await db.collection('analytics_events')
+                        .where('timestamp', '>=', startOfHour)
+                        .where('timestamp', '<', endOfHour)
+                        .get();
+                    
+                    activityCounts.push(snapshot.size);
+                }
+                
+                const ctx = document.getElementById('activityChart').getContext('2d');
+                
+                if (activityChart) {
+                    activityChart.destroy();
+                }
+                
+                activityChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: last24Hours,
+                        datasets: [{
+                            label: 'Events',
+                            data: activityCounts,
+                            backgroundColor: 'rgba(255, 69, 58, 0.6)',
+                            borderColor: '#ff453a',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#e2e8f0'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 69, 58, 0.1)'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 69, 58, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading activity chart:', error);
+            }
+        }
+        
+        async function loadUsersTable() {
+            try {
+                const usersSnapshot = await db.collection('users')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Organization</th>
+                                <th>Created</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                usersSnapshot.forEach(doc => {
+                    const user = doc.data();
+                    const createdAt = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A';
+                    const lastLogin = user.lastLogin ? user.lastLogin.toDate().toLocaleDateString() : 'N/A';
+                    const status = user.isActive ? 'Active' : 'Inactive';
+                    const statusClass = user.isActive ? 'status-active' : 'status-inactive';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${user.name || 'N/A'}</td>
+                            <td>${user.email || 'N/A'}</td>
+                            <td>${user.organization || 'N/A'}</td>
+                            <td>${createdAt}</td>
+                            <td>${lastLogin}</td>
+                            <td class="${statusClass}">${status}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('usersTableContainer').innerHTML = tableHTML;
+                
+            } catch (error) {
+                console.error('Error loading users table:', error);
+                document.getElementById('usersTableContainer').innerHTML = '<div class="loading">Error loading users</div>';
+            }
+        }
+        
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto-refresh every 5 minutes
+            setInterval(loadDashboardData, 300000);
+        });
+    </script>
+</body>
+</html>
